@@ -28,7 +28,7 @@ audio{width:100%}
 <button onclick="show('feedPage')">Home</button><br>
 <button onclick="show('podcastPage')">Podcasts</button><br>
 <button onclick="show('livePage')">Live</button><br>
-<button onclick="show('adminPage')">Admin</button><br><br>
+<button onclick="showAdminLogin()">Admin</button>
 
 <button onclick="connectSpotify()">Connect Spotify</button>
 </div>
@@ -77,6 +77,15 @@ audio{width:100%}
 </div>
 
 <!-- ADMIN -->
+  <div id="adminLoginPage" class="hidden">
+<div class="card">
+<h3>Admin Login</h3>
+<input id="adminUser" placeholder="Username"><br><br>
+<input id="adminPass" type="password" placeholder="Password"><br><br>
+<button onclick="adminLogin()">Login</button>
+<div id="adminMsg"></div>
+</div>
+</div>
 <div id="adminPage" class="hidden">
 
 <div class="card">
@@ -106,7 +115,7 @@ audio{width:100%}
 </div>
 
 <script>
-const API="PASTE_APPS_SCRIPT_URL";
+const API="https://script.google.com/macros/s/AKfycbyIfbX_CVhakdvVMFrXnqx_zWCpmk3xgFHd3yKxmJ8X3jmQaQx_h7GcIiOQdddusDKxfg/exec";
 
 /* ---------- NAVIGATION ---------- */
 function show(id){
@@ -183,48 +192,76 @@ function toggleRepeat(){ repeat=!repeat; alert("Repeat:"+repeat); }
 
 /* ---------- ADMIN ---------- */
 function uploadPodcast(){
+if(!isAdmin) return alert("Admin only");
+
 fetch(API,{
 method:"POST",
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 action:"uploadPodcast",
-role:"admin",
+authUser:"admin",
+authPass:"admin123",
 title:pTitle.value,
 audioUrl:pAudio.value,
 coverUrl:pCover.value,
 userId:"admin1"
 })
-});
+}).then(r=>r.json()).then(()=>alert("Podcast uploaded"));
 }
 
 function createEvent(){
+if(!isAdmin) return alert("Admin only");
+
 fetch(API,{
 method:"POST",
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 action:"createEvent",
-role:"admin",
+authUser:"admin",
+authPass:"admin123",
 title:eTitle.value,
 date:eDate.value
 })
-});
+}).then(r=>r.json()).then(()=>alert("Event created"));
 }
 
 function setLive(){
-liveFrame.src=
-"https://www.youtube.com/embed/"+liveIdInput.value;
+if(!isAdmin) return alert("Admin only");
+
+fetch(API,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+action:"setLive",
+authUser:"admin",
+authPass:"admin123",
+youtubeId:liveIdInput.value
+})
+}).then(r=>r.json()).then(()=>{
+liveFrame.src="https://www.youtube.com/embed/"+liveIdInput.value;
+alert("Live broadcast set");
+});
+}
+  let isAdmin=false;
+
+function showAdminLogin(){
+show("adminLoginPage");
 }
 
-/* ---------- SPOTIFY ---------- */
-function connectSpotify(){
-location.href=
-"https://accounts.spotify.com/authorize"+
-"?client_id=YOUR_SPOTIFY_ID"+
-"&response_type=token"+
-"&redirect_uri="+encodeURIComponent(location.href)+
-"&scope=streaming user-read-email";
-}
+function adminLogin(){
+const u=adminUser.value;
+const p=adminPass.value;
 
-loadPosts();
+if(u==="admin" && p==="admin123"){
+isAdmin=true;
+adminMsg.innerHTML="Login successful";
+show("adminPage");
+}else{
+adminMsg.innerHTML="Wrong credentials";
+}
+}
 </script>
 
 </body>
 </html>
+
