@@ -191,24 +191,46 @@ function toggleLoop(){ loop=!loop; alert("Loop:"+loop); }
 function toggleRepeat(){ repeat=!repeat; alert("Repeat:"+repeat); }
 
 /* ---------- ADMIN ---------- */
-function uploadPodcast(){
-if(!isAdmin) return alert("Admin only");
+async function uploadPodcast(){
 
-fetch(API,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
+if(!isAdmin){
+alert("You must login as admin first");
+return;
+}
+
+const payload={
 action:"uploadPodcast",
 authUser:"admin",
 authPass:"admin123",
-title:pTitle.value,
-audioUrl:pAudio.value,
-coverUrl:pCover.value,
-userId:"admin1"
-})
-}).then(r=>r.json()).then(()=>alert("Podcast uploaded"));
-}
+title:document.getElementById("pTitle").value,
+audioUrl:document.getElementById("pAudio").value,
+coverUrl:document.getElementById("pCover").value,
+userId:"admin"
+};
 
+console.log("Sending payload:",payload);
+
+try{
+const res=await fetch(API,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+});
+
+console.log("Raw response:",res);
+
+const text=await res.text();
+console.log("Server text:",text);
+
+alert("Server response: "+text);
+
+}catch(err){
+console.error("Upload error:",err);
+alert("Upload failed: "+err);
+}
+}
 function createEvent(){
 if(!isAdmin) return alert("Admin only");
 
@@ -264,6 +286,7 @@ adminMsg.innerHTML="Wrong credentials";
 
 </body>
 </html>
+
 
 
 
