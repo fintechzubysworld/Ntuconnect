@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Ntudioka · Youth Podcasts</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ffa600">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <!-- Existing styles and fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* (keep all your existing styles exactly as they are) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(145deg, #f9f3e8 0%, #ffe9ce 100%);
+            color: #2d2d2d;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 215, 0, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #d64b4b, #ffa600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo i { -webkit-text-fill-color: #ffa600; margin-right: 6px; }
+        .admin-link {
+            background: #2d2d2d;
+            color: #ffd966;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .admin-link:hover { background: #1e1e1e; color: white; }
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format') center/cover;
+            background-color: rgba(255, 215, 0, 0.7);
+            background-blend-mode: overlay;
+            color: #1e1e1e;
+        }
+        .hero h1 { font-size: 2.5rem; font-weight: 700; text-shadow: 2px 2px 0 rgba(255,255,255,0.5); margin-bottom: 10px; }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,240,0.6);
+            padding: 12px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(3px);
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin: 20px 15px;
+        }
+        .search-bar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 60px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            font-size: 1rem;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #ffa600;
+            box-shadow: 0 10px 25px rgba(255,166,0,0.2);
+        }
+        .podcast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px 20px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .podcast-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 25px 20px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1), 0 0 0 2px rgba(255,215,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .podcast-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 35px rgba(255,166,0,0.25), 0 0 0 3px #ffc107;
+        }
+        .podcast-emoji { font-size: 3.5rem; margin-bottom: 5px; line-height: 1; }
+        .podcast-title { font-size: 1.8rem; font-weight: 700; color: #1e1e1e; margin-bottom: 5px; }
+        .podcast-date {
+            font-size: 0.9rem;
+            color: #b45f06;
+            background: #ffecb3;
+            display: inline-block;
+            padding: 4px 15px;
+            border-radius: 40px;
+            margin: 8px 0 12px;
+            font-weight: 600;
+        }
+        .podcast-desc { font-size: 1rem; color: #3a3a3a; margin-bottom: 20px; line-height: 1.5; flex-grow: 1; }
+        .play-container {
+            background: #f0e0c0;
+            border-radius: 50px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 2px solid #ffb347;
+            text-align: center;
+        }
+        .drive-iframe {
+            width: 100%;
+            height: 80px;
+            border: none;
+            border-radius: 40px;
+            background: transparent;
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            background: rgba(255,255,200,0.6);
+            border-radius: 80px;
+            font-size: 1.4rem;
+        }
+        .footer { text-align: center; padding: 30px; color: #5a5a5a; font-weight: 600; }
+        .footer i { color: #ff6b6b; }
+        .error-message { color: #ff4d4d; text-align: center; padding: 20px; }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,215,0,0.3);
+            border-radius: 50%;
+            border-top-color: #ffa600;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo"><i class="fas fa-podcast"></i> Ntudioka Youth</div>
+        <a href="ntuonline.html" class="admin-link" target="_blank"><i class="fas fa-crown"></i> Admin</a>
+    </header>
+
+    <section class="hero">
+        <h1>🎧 Unlock the vibe</h1>
+        <p>Real stories. Real youth. Press play.</p>
+    </section>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search episodes... (e.g. 'Gen Z')">
+    </div>
+
+    <div id="podcastContainer" class="podcast-grid">
+        <div class="empty-state">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 15px;">Loading episodes...</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <i class="fas fa-heart"></i> by Ntudioka community · 2026
+    </footer>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // ========== CONFIGURATION ==========
+        const API_KEY = 'AIzaSyD91n0Uv-It5GUtfrXyNRXWs8o1eTWiHAo';
+        const FOLDER_ID = '1yZhnewH1Yo0J-F0W-96V_rDq517e5Y-2';
+
+        let allEpisodes = [];
+
+        // Load Google API client
+        gapi.load('client', async () => {
+            try {
+                await gapi.client.init({ 
+                    apiKey: API_KEY, 
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] 
+                });
+                console.log('✅ GAPI client ready');
+                fetchEpisodes();
+            } catch (err) {
+                console.error('❌ GAPI init error', err);
+                document.getElementById('podcastContainer').innerHTML = 
+                    `<div class="error-message">❌ Failed to initialize. Please check your internet connection.</div>`;
+            }
+        });
+
+        async function fetchEpisodes() {
+            const container = document.getElementById('podcastContainer');
+            container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><p style="margin-top: 15px;">Loading episodes...</p></div>';
+
+            try {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${FOLDER_ID}' in parents and trashed=false`,
+                    fields: 'files(id, name, description, createdTime)',
+                    orderBy: 'createdTime desc'
+                });
+
+                const files = response.result.files || [];
+                
+                if (files.length === 0) {
+                    container.innerHTML = '<div class="empty-state">✨ No episodes yet — stay tuned!</div>';
+                    return;
+                }
+
+                allEpisodes = files.map(file => {
+                    let title = file.name;
+                    let desc = '';
+                    if (file.description) {
+                        try {
+                            const meta = JSON.parse(file.description);
+                            title = meta.title || file.name;
+                            desc = meta.desc || '';
+                        } catch (e) {
+                            // description not JSON, ignore
+                        }
+                    }
+                    return {
+                        id: file.id,
+                        title: title,
+                        desc: desc,
+                        date: file.createdTime ? file.createdTime.slice(0,10) : 'Unknown',
+                        fileId: file.id
+                    };
+                });
+
+                renderFilteredEpisodes();
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<div class="error-message">❌ Failed to load episodes. ${err.message}</div>`;
+            }
+        }
+
+        function renderFilteredEpisodes() {
+            const filterText = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = filterText
+                ? allEpisodes.filter(ep => ep.title.toLowerCase().includes(filterText))
+                : allEpisodes;
+            const container = document.getElementById('podcastContainer');
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">🔇 No matching episodes</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(ep => {
+                const emojiList = ['🎙️', '🎧', '🔊', '🎵', '📻', '🎤', '🔥', '💬', '✨', '🌟', '⭐', '☄️', '🎼', '🎹', '🥁'];
+                const emojiIndex = (ep.title.length + ep.id.length) % emojiList.length;
+                const emoji = emojiList[emojiIndex];
+
+                return `
+                    <div class="podcast-card">
+                        <div class="podcast-emoji">${emoji}</div>
+                        <div class="podcast-title">${ep.title}</div>
+                        <div class="podcast-date">📅 ${ep.date}</div>
+                        <div class="podcast-desc">${ep.desc}</div>
+                        <div class="play-container">
+                            <iframe class="drive-iframe" 
+                                src="https://drive.google.com/file/d/${ep.fileId}/preview" 
+                                allow="autoplay"
+                                title="${ep.title}">
+                            </iframe>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderFilteredEpisodes);
+
+        // ========== PWA: Register Service Worker ==========
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('✅ Service Worker registered', reg);
+                }).catch(err => {
+                    console.log('❌ Service Worker registration failed', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
