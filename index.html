@@ -2,50 +2,132 @@
 <html>
 <head>
     <title>Ntuconnect</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: auto; padding: 20px; }
+        .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .error { color: red; background: #ffeeee; padding: 10px; border-radius: 5px; }
+        .loading { color: gray; font-style: italic; }
+        .reactions button { margin-right: 5px; cursor: pointer; }
+        #login input, #login button { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Ntuconnect</h1>
+
+    <div id="login">
+        <input type="email" id="email" placeholder="Your email" required>
+        <input type="text" id="name" placeholder="Your name (optional)">
+        <button onclick="login()">Login / Register</button>
+    </div>
+
+    <div id="message" class="error" style="display: none;"></div>
+    <div id="feed">
+        <div class="loading">Loading feed...</div>
+    </div>
+
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyIfbX_CVhakdvVMFrXnqx_zWCpmk3xgFHd3yKxmJ8X3jmQaQx_h7GcIiOQdddusDKxfg/exec';
+        // ========== CONFIGURATION ==========
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyIfbX_CVhakdvVMFrXnqx_zWCpmk3xgFHd3yKxmJ8X3jmQaQx_h7GcIiOQdddusDKxfg/exec; // <-- REPLACE WITH YOUR DEPLOYED URL
+
         let currentUser = null;
 
+        // Load user from localStorage on startup
+        (function init() {
+            const stored = localStorage.getItem('ntuconnect_user');
+            if (stored) {
+                currentUser = JSON.parse(stored);
+                document.getElementById('email').value = currentUser.email;
+                document.getElementById('name').value = currentUser.name;
+                loadFeed();
+            } else {
+                document.getElementById('feed').innerHTML = '<p>Please log in to see the feed.</p>';
+            }
+        })();
+
+        // Show error message
+        function showError(msg) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.style.display = 'block';
+            msgDiv.textContent = 'Error: ' + msg;
+        }
+
+        // Hide error
+        function hideError() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        // Login function
         async function login() {
-            const email = document.getElementById('email').value;
-            const name = document.getElementById('name').value;
-            if (!email) return;
-            // Store user in localStorage
+            const email = document.getElementById('email').value.trim();
+            const name = document.getElementById('name').value.trim() || 'User';
+            if (!email) {
+                showError('Email is required');
+                return;
+            }
+            hideError();
+
             currentUser = { email, name };
             localStorage.setItem('ntuconnect_user', JSON.stringify(currentUser));
             loadFeed();
         }
 
+        // Load feed posts
         async function loadFeed() {
             if (!currentUser) {
-                const stored = localStorage.getItem('ntuconnect_user');
-                if (stored) currentUser = JSON.parse(stored);
-                else return;
+                document.getElementById('feed').innerHTML = '<p>Please log in.</p>';
+                return;
             }
-            const response = await fetch(`${API_URL}?action=getPosts`);
-            const data = await response.json();
-            displayPosts(data.posts);
+
+            document.getElementById('feed').innerHTML = '<div class="loading">Loading feed...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}?action=getPosts`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayPosts(data.posts || []);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('feed').innerHTML = `<p class="error">Failed to load feed: ${err.message}</p>`;
+            }
         }
 
+        // Display posts
         function displayPosts(posts) {
             const container = document.getElementById('feed');
+            if (posts.length === 0) {
+                container.innerHTML = '<p>No posts yet.</p>';
+                return;
+            }
+
             container.innerHTML = '';
             posts.forEach(post => {
                 const div = document.createElement('div');
                 div.className = 'post';
+                div.id = `post-${post.postID}`;
                 div.innerHTML = `
-                    <h3>${post.title || 'Goodwill'}</h3>
-                    <p>${post.content}</p>
-                    <small>By ${post.createdBy}</small>
+                    <h3>${post.title || 'Goodwill Message'}</h3>
+                    <p>${post.content || ''}</p>
+                    ${post.mediaURL ? `<p>🔗 <a href="${post.mediaURL}" target="_blank">Media</a></p>` : ''}
+                    <small>By ${post.createdBy} at ${new Date(post.timestamp).toLocaleString()}</small>
                     <div class="reactions">
-                        <button onclick="react('${post.postID}', 'like')">👍</button>
-                        <button onclick="react('${post.postID}', 'love')">❤️</button>
-                        <button onclick="react('${post.postID}', 'hate')">👎</button>
-                        <button onclick="react('${post.postID}', 'angry')">😠</button>
+                        <button onclick="react('${post.postID}', 'like')">👍 Like</button>
+                        <button onclick="react('${post.postID}', 'love')">❤️ Love</button>
+                        <button onclick="react('${post.postID}', 'hate')">👎 Hate</button>
+                        <button onclick="react('${post.postID}', 'angry')">😠 Angry</button>
                     </div>
-                    <div id="comments-${post.postID}"></div>
-                    <input id="comment-${post.postID}" placeholder="Add a comment">
-                    <button onclick="addComment('${post.postID}')">Comment</button>
+                    <div id="comments-${post.postID}" class="comments"></div>
+                    <div>
+                        <input type="text" id="comment-${post.postID}" placeholder="Add a comment...">
+                        <button onclick="addComment('${post.postID}')">Comment</button>
+                    </div>
                 `;
                 container.appendChild(div);
                 loadComments(post.postID);
@@ -53,73 +135,97 @@
             });
         }
 
+        // React to a post
         async function react(targetID, type) {
             if (!currentUser) return;
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'addReaction',
-                    userEmail: currentUser.email,
-                    targetID,
-                    targetType: 'post',
-                    reactionType: type
-                })
-            });
-            loadReactions(targetID, 'post');
-        }
-
-        async function addComment(postID) {
-            const input = document.getElementById(`comment-${postID}`);
-            const text = input.value;
-            if (!text) return;
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'addComment',
-                    userEmail: currentUser.email,
-                    postID,
-                    comment: text
-                })
-            });
-            input.value = '';
-            loadComments(postID);
-        }
-
-        async function loadComments(postID) {
-            const response = await fetch(`${API_URL}?action=getComments&postID=${postID}`);
-            const data = await response.json();
-            const commentsDiv = document.getElementById(`comments-${postID}`);
-            commentsDiv.innerHTML = '<h4>Comments</h4>';
-            data.comments.forEach(cmt => {
-                const p = document.createElement('p');
-                p.textContent = `${cmt.userID}: ${cmt.comment}`;
-                commentsDiv.appendChild(p);
-            });
-        }
-
-        async function loadReactions(targetID, targetType) {
-            const response = await fetch(`${API_URL}?action=getReactions&targetID=${targetID}&targetType=${targetType}`);
-            const data = await response.json();
-            // You can display counts here
-        }
-
-        window.onload = () => {
-            const stored = localStorage.getItem('ntuconnect_user');
-            if (stored) {
-                currentUser = JSON.parse(stored);
-                loadFeed();
+            hideError();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'addReaction',
+                        userEmail: currentUser.email,
+                        userName: currentUser.name,
+                        targetID,
+                        targetType: 'post',
+                        reactionType: type
+                    })
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                // Refresh reactions for this post
+                loadReactions(targetID, 'post');
+            } catch (err) {
+                showError(err.message);
             }
-        };
+        }
+
+        // Add a comment
+        async function addComment(postID) {
+            if (!currentUser) return;
+            const input = document.getElementById(`comment-${postID}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            hideError();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'addComment',
+                        userEmail: currentUser.email,
+                        userName: currentUser.name,
+                        postID,
+                        comment: text
+                    })
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                input.value = '';
+                loadComments(postID);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Load comments for a post
+        async function loadComments(postID) {
+            try {
+                const response = await fetch(`${API_URL}?action=getComments&postID=${postID}`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                const commentsDiv = document.getElementById(`comments-${postID}`);
+                if (!commentsDiv) return;
+
+                if (data.comments && data.comments.length > 0) {
+                    let html = '<h4>Comments:</h4>';
+                    data.comments.forEach(cmt => {
+                        html += `<p><strong>${cmt.userID}:</strong> ${cmt.comment} <small>${new Date(cmt.timestamp).toLocaleString()}</small></p>`;
+                    });
+                    commentsDiv.innerHTML = html;
+                } else {
+                    commentsDiv.innerHTML = '<p><em>No comments yet.</em></p>';
+                }
+            } catch (err) {
+                console.error('Failed to load comments:', err);
+            }
+        }
+
+        // Load reactions (just to see counts – you can extend this)
+        async function loadReactions(targetID, targetType) {
+            try {
+                const response = await fetch(`${API_URL}?action=getReactions&targetID=${targetID}&targetType=${targetType}`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                // You can display reaction counts here if desired.
+                // For simplicity, we'll just log them.
+                console.log(`Reactions for ${targetID}:`, data.reactions);
+            } catch (err) {
+                console.error('Failed to load reactions:', err);
+            }
+        }
     </script>
-</head>
-<body>
-    <h1>Ntuconnect</h1>
-    <div id="login">
-        <input id="email" placeholder="Email">
-        <input id="name" placeholder="Name">
-        <button onclick="login()">Login / Register</button>
-    </div>
-    <div id="feed"></div>
 </body>
 </html>
-
