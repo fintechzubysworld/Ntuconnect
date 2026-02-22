@@ -1,495 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ntuconnect</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* (Keep all existing styles from previous version) */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        header { background: #4267B2; color: white; padding: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-        .logo { font-size: 1.8rem; font-weight: bold; }
-        nav ul { display: flex; list-style: none; gap: 1.5rem; }
-        nav ul li a { color: white; text-decoration: none; font-weight: 500; cursor: pointer; }
-        .user-section { display: flex; align-items: center; gap: 1rem; }
-        .user-section button { background: white; color: #4267B2; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .user-section span { font-weight: 500; }
-        main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
-        .post { border-bottom: 1px solid #ddd; padding: 1rem 0; }
-        .post:last-child { border-bottom: none; }
-        .post-meta { font-size: 0.9rem; color: #65676b; margin-bottom: 0.5rem; }
-        .post-content { margin: 0.5rem 0; }
-        .reactions { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
-        .reactions button { background: none; border: 1px solid #ccc; border-radius: 20px; padding: 0.3rem 1rem; cursor: pointer; transition: all 0.2s; }
-        .reactions button:hover { background: #e0e0e0; }
-        .reactions button.selected { background: #4267B2; color: white; border-color: #4267B2; }
-        .comments-section { margin-top: 1rem; }
-        .comment { background: #f0f2f5; border-radius: 18px; padding: 0.5rem 1rem; margin: 0.5rem 0; display: inline-block; max-width: 80%; }
-        .comment small { color: #65676b; margin-left: 0.5rem; }
-        .add-comment { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-        .add-comment input { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 20px; }
-        .add-comment button { background: #4267B2; color: white; border: none; border-radius: 20px; padding: 0.5rem 1rem; cursor: pointer; }
-        .podcast-player { background: #1e1e1e; color: white; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
-        .podcast-controls { display: flex; align-items: center; gap: 1rem; margin: 1rem 0; }
-        .podcast-controls button { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
-        .playlist-item { display: flex; align-items: center; gap: 1rem; padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #333; }
-        .playlist-item:hover { background: #333; }
-        .spotify-player { background: #191414; color: #1DB954; padding: 1rem; border-radius: 8px; }
-        .live-broadcast iframe { width: 100%; height: 400px; border: none; border-radius: 8px; }
-        .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 5px; }
-        .admin-form button { background: #4267B2; color: white; border: none; padding: 0.7rem; border-radius: 5px; cursor: pointer; }
-        .error { color: #c00; background: #ffe6e6; padding: 0.5rem; border-radius: 5px; margin: 0.5rem 0; }
-        .success { color: #0a0; background: #e6ffe6; padding: 0.5rem; border-radius: 5px; margin: 0.5rem 0; }
-        .hidden { display: none; }
-        /* Modal styles */
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-        .modal h3 { margin-bottom: 1rem; }
-        .modal input, .modal select { width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 5px; }
-        .modal button { width: 100%; padding: 0.7rem; margin: 0.5rem 0; border: none; border-radius: 5px; cursor: pointer; }
-        .modal .tab-buttons { display: flex; gap: 1rem; margin-bottom: 1rem; }
-        .modal .tab-buttons button { flex: 1; background: #f0f2f5; color: #000; }
-        .modal .tab-buttons button.active { background: #4267B2; color: white; }
-        .modal .google-btn { background: #db4437; color: white; }
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:999; }
-    </style>
+<meta charset="UTF-8">
+<title>NTUCONNECT</title>
+<style>
+body{font-family:Arial;margin:0;background:#eef1f5}
+header{background:#1877f2;color:white;padding:12px;font-size:20px}
+#container{display:flex}
+#sidebar{width:230px;background:white;height:100vh;padding:10px}
+#feed{flex:1;padding:20px}
+.card{background:white;padding:12px;margin-bottom:12px;border-radius:8px}
+button{padding:6px 10px;margin-top:6px}
+textarea{width:100%;height:60px}
+audio{width:100%}
+.reactions span{cursor:pointer;margin-right:6px}
+.hidden{display:none}
+</style>
 </head>
 <body>
-    <header>
-        <div class="logo">Ntuconnect</div>
-        <nav>
-            <ul>
-                <li><a onclick="showTab('home')">Home</a></li>
-                <li><a onclick="showTab('podcasts')">Podcasts</a></li>
-                <li><a onclick="showTab('live')">Live</a></li>
-                <li><a onclick="showTab('spotify')">Spotify</a></li>
-                <li id="admin-tab" class="hidden"><a onclick="showTab('admin')">Admin</a></li>
-            </ul>
-        </nav>
-        <div class="user-section">
-            <span id="userDisplay"></span>
-            <button id="loginBtn" onclick="showAuthModal()">Login / Register</button>
-            <button id="logoutBtn" class="hidden" onclick="logout()">Logout</button>
-            <button id="changePasswordBtn" class="hidden" onclick="showChangePassword()">Change Password</button>
-        </div>
-    </header>
 
-    <!-- Authentication Modal -->
-    <div id="authModal" class="modal hidden">
-        <div class="tab-buttons">
-            <button id="loginTabBtn" class="active" onclick="switchAuthTab('login')">Login</button>
-            <button id="registerTabBtn" onclick="switchAuthTab('register')">Register</button>
-        </div>
-        <div id="loginForm">
-            <h3>Login</h3>
-            <input type="email" id="loginEmail" placeholder="Email" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <button onclick="login()">Login</button>
-            <button class="google-btn" onclick="googleSignIn()">Login with Google</button>
-            <p class="error" id="loginError"></p>
-        </div>
-        <div id="registerForm" class="hidden">
-            <h3>Register</h3>
-            <input type="email" id="regEmail" placeholder="Email" required>
-            <input type="password" id="regPassword" placeholder="Password" required>
-            <input type="text" id="regFirstName" placeholder="First Name" required>
-            <input type="text" id="regLastName" placeholder="Last Name" required>
-            <input type="text" id="regSubkindred" placeholder="Subkindred" required>
-            <input type="text" id="regKindred" placeholder="Kindred" required>
-            <input type="text" id="regVillage" placeholder="Village" required>
-            <button onclick="register()">Register</button>
-            <button class="google-btn" onclick="googleSignIn()">Register with Google</button>
-            <p class="error" id="regError"></p>
-        </div>
-        <button onclick="hideAuthModal()" style="background:#ccc;">Cancel</button>
-    </div>
-    <div id="overlay" class="overlay hidden" onclick="hideAuthModal()"></div>
+<header>NTUCONNECT</header>
 
-    <!-- Change Password Modal -->
-    <div id="changePasswordModal" class="modal hidden">
-        <h3>Change Password</h3>
-        <input type="password" id="oldPassword" placeholder="Old Password">
-        <input type="password" id="newPassword" placeholder="New Password">
-        <input type="password" id="confirmPassword" placeholder="Confirm New Password">
-        <button onclick="changePassword()">Update</button>
-        <button onclick="hideChangePassword()">Cancel</button>
-        <p class="error" id="passwordError"></p>
-    </div>
+<div id="container">
 
-    <main>
-        <!-- Home Tab -->
-        <div id="home" class="tab-content active">
-            <div class="card">
-                <h2>Feed</h2>
-                <div id="feed"></div>
-            </div>
-        </div>
+<div id="sidebar">
+<b>Menu</b><br><br>
+<button onclick="show('feedPage')">Home</button><br>
+<button onclick="show('podcastPage')">Podcasts</button><br>
+<button onclick="show('livePage')">Live</button><br>
+<button onclick="show('adminPage')">Admin</button><br><br>
 
-        <!-- Podcasts Tab -->
-        <div id="podcasts" class="tab-content">
-            <div class="card">
-                <h2>Podcasts</h2>
-                <div class="podcast-player" id="podcastPlayer">
-                    <audio id="audioPlayer" controls style="width:100%"></audio>
-                    <div class="podcast-controls">
-                        <button onclick="playPrev()"><i class="fas fa-step-backward"></i></button>
-                        <button onclick="playPause()"><i class="fas fa-play" id="playPauseIcon"></i></button>
-                        <button onclick="playNext()"><i class="fas fa-step-forward"></i></button>
-                        <select id="repeatMode" onchange="setRepeatMode(this.value)">
-                            <option value="none">No repeat</option>
-                            <option value="one">Repeat one</option>
-                            <option value="all">Repeat all</option>
-                        </select>
-                        <button onclick="toggleLoop()" id="loopBtn"><i class="fas fa-redo"></i></button>
-                    </div>
-                    <div id="currentPodcastInfo"></div>
-                </div>
-                <div>
-                    <h3>Episodes</h3>
-                    <div id="podcastList"></div>
-                </div>
-                <div>
-                    <h3>My Playlists</h3>
-                    <div id="playlistList"></div>
-                    <button onclick="createPlaylist()" id="createPlaylistBtn" class="hidden">+ New Playlist</button>
-                </div>
-            </div>
-        </div>
+<button onclick="connectSpotify()">Connect Spotify</button>
+</div>
 
-        <!-- Live Tab -->
-        <div id="live" class="tab-content">
-            <div class="card">
-                <h2>Live Broadcasts</h2>
-                <div id="liveList"></div>
-            </div>
-        </div>
+<div id="feed">
 
-        <!-- Spotify Tab -->
-        <div id="spotify" class="tab-content">
-            <div class="card spotify-player">
-                <h2>Spotify Streaming</h2>
-                <div id="spotifyStatus"></div>
-                <div id="spotifyPlayer"></div>
-            </div>
-        </div>
+<!-- HOME -->
+<div id="feedPage">
 
-        <!-- Admin Tab -->
-        <div id="admin" class="tab-content">
-            <div class="card admin-form">
-                <h2>Admin Panel</h2>
-                <h3>Create New Post</h3>
-                <select id="postType">
-                    <option value="goodwill">Goodwill Message</option>
-                    <option value="event">Event</option>
-                    <option value="podcast">Podcast</option>
-                    <option value="live">Live Broadcast</option>
-                </select>
-                <input type="text" id="postTitle" placeholder="Title (optional for goodwill)">
-                <textarea id="postContent" placeholder="Content"></textarea>
-                <input type="text" id="postMediaURL" placeholder="Media URL (for podcast: Google Drive file ID)">
-                <input type="datetime-local" id="postScheduled" placeholder="Scheduled time (for events/live)">
-                <button onclick="createPost()">Publish</button>
-                <div id="adminMessage"></div>
+<div class="card">
+<textarea id="postText" placeholder="Send goodwill message..."></textarea>
+<button onclick="createPost()">Post</button>
+</div>
 
-                <h3>Promote User to Admin</h3>
-                <input type="email" id="promoteEmail" placeholder="User email">
-                <button onclick="promoteToAdmin()">Promote</button>
-            </div>
-        </div>
-    </main>
+<div id="posts"></div>
+</div>
 
-    <script src="https://sdk.scdn.co/spotify-player.js"></script>
-    <script>
-        // ==================== CONFIGURATION ====================
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIfbX_CVhakdvVMFrXnqx_zWCpmk3xgFHd3yKxmJ8X3jmQaQx_h7GcIiOQdddusDKxfg/exec';
-        const SPOTIFY_CLIENT_ID = 'd656dc4a92b24ff39bce8bc8f2e29add';
-        const YOUTUBE_API_KEY = 'AIzaSyA2GQxMOE3ll4rS4-rQdFPWKc8tZt6SedY';
-        const GOOGLE_CLIENT_ID = '904948577360-i2423vutrhapi3n6f4ksc47vfgbqh6al.apps.googleusercontent.com';
+<!-- PODCAST PAGE -->
+<div id="podcastPage" class="hidden">
 
-        let currentUser = null;
-        let allPodcasts = [];
-        let currentPlaylist = [];
-        let currentIndex = 0;
-        let repeatMode = 'none';
-        let loop = false;
-        let spotifyPlayer = null;
-        let spotifyDeviceId = null;
+<div class="card">
+<h3>Podcast Player</h3>
+<audio id="player" controls></audio><br>
 
-        // ==================== INITIALIZATION ====================
-        window.onload = function() {
-            const stored = localStorage.getItem('ntuconnect_user');
-            if (stored) {
-                currentUser = JSON.parse(stored);
-                updateUserUI();
-            }
-            loadFeed();
-            loadPodcasts();
-            loadLiveBroadcasts();
-            loadFeatures();
-            window.onSpotifyWebPlaybackSDKReady = initSpotifyPlayer;
-        };
+<button onclick="prev()">Prev</button>
+<button onclick="next()">Next</button>
+<button onclick="toggleLoop()">Loop</button>
+<button onclick="toggleRepeat()">Repeat All</button>
+</div>
 
-        // ==================== AUTH MODAL ====================
-        function showAuthModal() {
-            document.getElementById('authModal').classList.remove('hidden');
-            document.getElementById('overlay').classList.remove('hidden');
-        }
-        function hideAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-            document.getElementById('overlay').classList.add('hidden');
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('regError').textContent = '';
-        }
-        function switchAuthTab(tab) {
-            if (tab === 'login') {
-                document.getElementById('loginForm').classList.remove('hidden');
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('loginTabBtn').classList.add('active');
-                document.getElementById('registerTabBtn').classList.remove('active');
-            } else {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-                document.getElementById('loginTabBtn').classList.remove('active');
-                document.getElementById('registerTabBtn').classList.add('active');
-            }
-        }
+<div class="card">
+<input id="playlistName" placeholder="Playlist name">
+<button onclick="savePlaylist()">Save Playlist</button>
+</div>
 
-        async function login() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if (!email || !password) {
-        document.getElementById('loginError').textContent = 'Email and password required';
-        return;
-    }
-    try {
-        const resp = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'login', email, password })
-        });
-        const data = await resp.json();
-        console.log('Login response:', data); // ADD THIS for debugging
-        if (data.error) throw new Error(data.error);
-        if (!data.user) throw new Error('No user data returned');
-        currentUser = data.user;
-        localStorage.setItem('ntuconnect_user', JSON.stringify(currentUser));
-        updateUserUI();
-        hideAuthModal();
-        loadFeed(); // refresh for interactions
-        if (currentUser.role === 'admin') {
-            document.getElementById('admin-tab').classList.remove('hidden');
-        } else {
-            document.getElementById('admin-tab').classList.add('hidden');
-        }
-    } catch (err) {
-        document.getElementById('loginError').textContent = err.message;
-        console.error(err);
-    }
+<div id="podcastList"></div>
+</div>
+
+<!-- LIVE -->
+<div id="livePage" class="hidden">
+<div class="card">
+<h3>Live Broadcast</h3>
+<iframe id="liveFrame" width="100%" height="400"></iframe>
+</div>
+<div id="liveComments"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPage" class="hidden">
+
+<div class="card">
+<h3>Upload Podcast</h3>
+<input id="pTitle" placeholder="Title"><br>
+<input id="pAudio" placeholder="Drive audio URL"><br>
+<input id="pCover" placeholder="Cover URL"><br>
+<button onclick="uploadPodcast()">Upload</button>
+</div>
+
+<div class="card">
+<h3>Create Event</h3>
+<input id="eTitle" placeholder="Event title"><br>
+<input id="eDate" placeholder="Date"><br>
+<button onclick="createEvent()">Create</button>
+</div>
+
+<div class="card">
+<h3>Set Live Broadcast</h3>
+<input id="liveIdInput" placeholder="YouTube Live ID">
+<button onclick="setLive()">Start</button>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+const API="PASTE_APPS_SCRIPT_URL";
+
+/* ---------- NAVIGATION ---------- */
+function show(id){
+document.querySelectorAll("#feed > div").forEach(d=>d.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
 }
 
-        async function register() {
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const firstName = document.getElementById('regFirstName').value.trim();
-            const lastName = document.getElementById('regLastName').value.trim();
-            const subkindred = document.getElementById('regSubkindred').value.trim();
-            const kindred = document.getElementById('regKindred').value.trim();
-            const village = document.getElementById('regVillage').value.trim();
-            if (!email || !password || !firstName || !lastName || !subkindred || !kindred || !village) {
-                document.getElementById('regError').textContent = 'All fields required';
-                return;
-            }
-            try {
-                const resp = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'register',
-                        email, password, firstName, lastName, subkindred, kindred, village
-                    })
-                });
-                const data = await resp.json();
-console.log('Register response:', data);
-if (data.error) throw new Error(data.error);
-alert('Registration successful! Please check your email to verify.');
-hideAuthModal();
-            } catch (err) {
-                document.getElementById('regError').textContent = err.message;
-            }
-        }
-
-        // Google Sign-In
-        function googleSignIn() {
-            // Use Google Identity Services for web
-            const client = google.accounts.oauth2.initTokenClient({
-                client_id: GOOGLE_CLIENT_ID,
-                scope: 'email profile',
-                callback: (response) => {
-                    if (response.access_token) {
-                        // Get user info
-                        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                            headers: { Authorization: `Bearer ${response.access_token}` }
-                        })
-                        .then(res => res.json())
-                        .then(async profile => {
-                            // Send id_token to backend
-                            const backendResp = await fetch(APPS_SCRIPT_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    action: 'googleSignIn',
-                                    idToken: response.id_token,
-                                    firstName: profile.given_name,
-                                    lastName: profile.family_name
-                                })
-                            });
-                            const data = await backendResp.json();
-                            if (data.error) throw new Error(data.error);
-                            currentUser = data.user;
-                            localStorage.setItem('ntuconnect_user', JSON.stringify(currentUser));
-                            updateUserUI();
-                            hideAuthModal();
-                            loadFeed();
-                        });
-                    }
-                },
-            });
-            client.requestAccessToken();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('ntuconnect_user');
-            updateUserUI();
-            document.getElementById('admin-tab').classList.add('hidden');
-            showTab('home');
-            loadFeed();
-        }
-
-        function updateUserUI() {
-            const userSpan = document.getElementById('userDisplay');
-            const loginBtn = document.getElementById('loginBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const changePwdBtn = document.getElementById('changePasswordBtn');
-            if (currentUser) {
-                userSpan.textContent = `Hi, ${currentUser.firstName || currentUser.email}`;
-                loginBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                changePwdBtn.classList.remove('hidden');
-            } else {
-                userSpan.textContent = '';
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                changePwdBtn.classList.add('hidden');
-            }
-            if (currentUser && currentUser.role === 'admin') {
-    document.getElementById('admin-tab').classList.remove('hidden');
-} else {
-    document.getElementById('admin-tab').classList.add('hidden');
+/* ---------- POSTS ---------- */
+function createPost(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"createPost",
+userId:"user1",
+text:postText.value
+})
+}).then(()=>loadPosts());
 }
-        }
 
-        // Change Password
-        function showChangePassword() {
-            document.getElementById('changePasswordModal').classList.remove('hidden');
-            document.getElementById('overlay').classList.remove('hidden');
-        }
-        function hideChangePassword() {
-            document.getElementById('changePasswordModal').classList.add('hidden');
-            document.getElementById('overlay').classList.add('hidden');
-        }
-        async function changePassword() {
-            const oldPwd = document.getElementById('oldPassword').value;
-            const newPwd = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-            if (newPwd !== confirm) {
-                document.getElementById('passwordError').textContent = 'New passwords do not match';
-                return;
-            }
-            try {
-                const resp = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'changePassword',
-                        userEmail: currentUser.email,
-                        oldPassword: oldPwd,
-                        newPassword: newPwd
-                    })
-                });
-                const data = await resp.json();
-                if (data.error) throw new Error(data.error);
-                alert('Password changed successfully');
-                hideChangePassword();
-            } catch (err) {
-                document.getElementById('passwordError').textContent = err.message;
-            }
-        }
+function loadPosts(){
+fetch(API+"?action=getPosts")
+.then(r=>r.json())
+.then(data=>{
+posts.innerHTML="";
+data.forEach(p=>{
+posts.innerHTML+=`
+<div class="card">
+${p.text}
+<div class="reactions">
+<span onclick="react('${p.id}','like')">👍</span>
+<span onclick="react('${p.id}','love')">❤️</span>
+<span onclick="react('${p.id}','angry')">😡</span>
+</div>
+</div>`;
+});
+});
+}
 
-        // Admin: promote user
-        async function promoteToAdmin() {
-            const targetEmail = document.getElementById('promoteEmail').value.trim();
-            if (!targetEmail) return;
-            try {
-                const resp = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'promoteToAdmin',
-                        userEmail: currentUser.email,
-                        targetEmail
-                    })
-                });
-                const data = await resp.json();
-                if (data.error) throw new Error(data.error);
-                alert('User promoted to admin');
-            } catch (err) {
-                alert(err.message);
-            }
-        }
+function react(id,type){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"react",
+userId:"user1",
+targetId:id,
+type:"post",
+reaction:type
+})
+});
+}
 
-        // ==================== ALL EXISTING FEATURES (unchanged) ====================
-        // (Copy all functions from the previous frontend: showTab, loadFeed, displayFeed, react, loadReactions, addComment, loadComments,
-        //  loadPodcasts, renderPodcastList, playPodcast, loadAndPlay, playNext, playPrev, playPause, setRepeatMode, toggleLoop,
-        //  loadUserPlaylists, renderPlaylists, createPlaylist, loadPlaylist, loadLiveBroadcasts, renderLiveBroadcasts, extractVideoId,
-        //  initSpotifyPlayer, spotifyLogin, setupSpotifyPlayer, spotifyPlay, spotifyPause, spotifyNext, spotifyPrevious,
-        //  createPost, loadFeatures)
-        // For brevity, they are not repeated here; you must keep them from the previous version.
-        // Ensure they are present after this point.
-        // I'll include placeholders – you must copy the actual function bodies from the previous frontend.
-        function showTab(tabId) { /* ... */ }
-        async function loadFeed() { /* ... */ }
-        function displayFeed(posts) { /* ... */ }
-        async function react(targetID, type) { /* ... */ }
-        async function loadReactions(targetID, targetType) { /* ... */ }
-        async function addComment(postID) { /* ... */ }
-        async function loadComments(postID) { /* ... */ }
-        async function loadPodcasts() { /* ... */ }
-        function renderPodcastList() { /* ... */ }
-        function playPodcast(index) { /* ... */ }
-        function loadAndPlay(index) { /* ... */ }
-        function playNext() { /* ... */ }
-        function playPrev() { /* ... */ }
-        function playPause() { /* ... */ }
-        function setRepeatMode(mode) { /* ... */ }
-        function toggleLoop() { /* ... */ }
-        async function loadUserPlaylists() { /* ... */ }
-        function renderPlaylists(playlists) { /* ... */ }
-        function createPlaylist() { /* ... */ }
-        function loadPlaylist(playlistID) { /* ... */ }
-        async function loadLiveBroadcasts() { /* ... */ }
-        function renderLiveBroadcasts(broadcasts) { /* ... */ }
-        function extractVideoId(url) { /* ... */ }
-        function initSpotifyPlayer() { /* ... */ }
-        function spotifyLogin() { /* ... */ }
-        function setupSpotifyPlayer(token) { /* ... */ }
-        function spotifyPlay() { /* ... */ }
-        function spotifyPause() { /* ... */ }
-        function spotifyNext() { /* ... */ }
-        function spotifyPrevious() { /* ... */ }
-        async function createPost() { /* ... */ }
-        async function loadFeatures() { /* ... */ }
-        // End of placeholders – replace with actual implementations from previous version.
-    </script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+/* ---------- PODCAST PLAYER ---------- */
+let playlist=[],current=0,loop=false,repeat=false;
+const player=document.getElementById("player");
+
+function play(i){
+current=i;
+player.src=playlist[i].audio;
+player.play();
+}
+
+player.onended=()=>{
+if(loop) return play(current);
+if(current<playlist.length-1) current++;
+else if(repeat) current=0;
+else return;
+play(current);
+};
+
+function next(){ if(current<playlist.length-1) play(current+1); }
+function prev(){ if(current>0) play(current-1); }
+function toggleLoop(){ loop=!loop; alert("Loop:"+loop); }
+function toggleRepeat(){ repeat=!repeat; alert("Repeat:"+repeat); }
+
+/* ---------- ADMIN ---------- */
+function uploadPodcast(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"uploadPodcast",
+role:"admin",
+title:pTitle.value,
+audioUrl:pAudio.value,
+coverUrl:pCover.value,
+userId:"admin1"
+})
+});
+}
+
+function createEvent(){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"createEvent",
+role:"admin",
+title:eTitle.value,
+date:eDate.value
+})
+});
+}
+
+function setLive(){
+liveFrame.src=
+"https://www.youtube.com/embed/"+liveIdInput.value;
+}
+
+/* ---------- SPOTIFY ---------- */
+function connectSpotify(){
+location.href=
+"https://accounts.spotify.com/authorize"+
+"?client_id=YOUR_SPOTIFY_ID"+
+"&response_type=token"+
+"&redirect_uri="+encodeURIComponent(location.href)+
+"&scope=streaming user-read-email";
+}
+
+loadPosts();
+</script>
+
 </body>
 </html>
