@@ -259,29 +259,36 @@
         }
 
         async function login() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            if (!email || !password) {
-                document.getElementById('loginError').textContent = 'Email and password required';
-                return;
-            }
-            try {
-                const resp = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', email, password })
-                });
-                const data = await resp.json();
-                if (data.error) throw new Error(data.error);
-                currentUser = data.user;
-                localStorage.setItem('ntuconnect_user', JSON.stringify(currentUser));
-                updateUserUI();
-                hideAuthModal();
-                loadFeed(); // refresh for interactions
-                if (currentUser.role === 'admin') document.getElementById('admin-tab').classList.remove('hidden');
-            } catch (err) {
-                document.getElementById('loginError').textContent = err.message;
-            }
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) {
+        document.getElementById('loginError').textContent = 'Email and password required';
+        return;
+    }
+    try {
+        const resp = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', email, password })
+        });
+        const data = await resp.json();
+        console.log('Login response:', data); // ADD THIS for debugging
+        if (data.error) throw new Error(data.error);
+        if (!data.user) throw new Error('No user data returned');
+        currentUser = data.user;
+        localStorage.setItem('ntuconnect_user', JSON.stringify(currentUser));
+        updateUserUI();
+        hideAuthModal();
+        loadFeed(); // refresh for interactions
+        if (currentUser.role === 'admin') {
+            document.getElementById('admin-tab').classList.remove('hidden');
+        } else {
+            document.getElementById('admin-tab').classList.add('hidden');
         }
+    } catch (err) {
+        document.getElementById('loginError').textContent = err.message;
+        console.error(err);
+    }
+}
 
         async function register() {
             const email = document.getElementById('regEmail').value.trim();
@@ -304,9 +311,10 @@
                     })
                 });
                 const data = await resp.json();
-                if (data.error) throw new Error(data.error);
-                alert('Registration successful! Please check your email to verify.');
-                hideAuthModal();
+console.log('Register response:', data);
+if (data.error) throw new Error(data.error);
+alert('Registration successful! Please check your email to verify.');
+hideAuthModal();
             } catch (err) {
                 document.getElementById('regError').textContent = err.message;
             }
@@ -375,6 +383,11 @@
                 logoutBtn.classList.add('hidden');
                 changePwdBtn.classList.add('hidden');
             }
+            if (currentUser && currentUser.role === 'admin') {
+    document.getElementById('admin-tab').classList.remove('hidden');
+} else {
+    document.getElementById('admin-tab').classList.add('hidden');
+}
         }
 
         // Change Password
