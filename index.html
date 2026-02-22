@@ -1,292 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>NTUCONNECT</title>
-<style>
-body{font-family:Arial;margin:0;background:#eef1f5}
-header{background:#1877f2;color:white;padding:12px;font-size:20px}
-#container{display:flex}
-#sidebar{width:230px;background:white;height:100vh;padding:10px}
-#feed{flex:1;padding:20px}
-.card{background:white;padding:12px;margin-bottom:12px;border-radius:8px}
-button{padding:6px 10px;margin-top:6px}
-textarea{width:100%;height:60px}
-audio{width:100%}
-.reactions span{cursor:pointer;margin-right:6px}
-.hidden{display:none}
-</style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root { --primary: #004a99; --secondary: #f0f2f5; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--secondary); margin: 0; }
+    .header { background: var(--primary); color: white; padding: 1rem; position: sticky; top: 0; z-index: 100; }
+    .container { display: flex; max-width: 1200px; margin: auto; gap: 20px; padding: 20px; }
+    .sidebar { width: 250px; background: white; border-radius: 8px; padding: 15px; height: fit-content; }
+    .feed { flex: 1; }
+    .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .player-dock { position: fixed; bottom: 0; width: 100%; background: #222; color: white; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .reaction-btn { border: none; background: none; cursor: pointer; font-size: 1.2rem; }
+    .admin-only { display: none; background: #fff3cd; border: 1px solid #ffeeba; }
+  </style>
 </head>
 <body>
 
-<header>NTUCONNECT</header>
-
-<div id="container">
-
-<div id="sidebar">
-<b>Menu</b><br><br>
-<button onclick="show('feedPage')">Home</button><br>
-<button onclick="show('podcastPage')">Podcasts</button><br>
-<button onclick="show('livePage')">Live</button><br>
-<button onclick="showAdminLogin()">Admin</button>
-
-<button onclick="connectSpotify()">Connect Spotify</button>
+<div class="header">
+  <h1>Ntuconnect</h1>
 </div>
 
-<div id="feed">
+<div class="container">
+  <div class="sidebar">
+    <h3>Menu</h3>
+    <button onclick="showTab('feed')">Home Feed</button><br><br>
+    <button onclick="showTab('podcasts')">Podcasts</button><br><br>
+    <button onclick="showTab('live')">YouTube Live</button><br><br>
+    <div id="adminPanel" class="admin-only">
+      <h4>Admin Tools</h4>
+      <button onclick="uploadContent()">Upload Content</button>
+    </div>
+  </div>
 
-<!-- HOME -->
-<div id="feedPage">
-
-<div class="card">
-<textarea id="postText" placeholder="Send goodwill message..."></textarea>
-<button onclick="createPost()">Post</button>
+  <div class="feed" id="mainContent">
+    <div class="card">
+      <textarea id="goodwillText" placeholder="Post a goodwill message..." style="width:100%"></textarea>
+      <button onclick="submitPost()">Post</button>
+    </div>
+    <div id="postsContainer"></div>
+  </div>
 </div>
 
-<div id="posts"></div>
-</div>
-
-<!-- PODCAST PAGE -->
-<div id="podcastPage" class="hidden">
-
-<div class="card">
-<h3>Podcast Player</h3>
-<audio id="player" controls></audio><br>
-
-<button onclick="prev()">Prev</button>
-<button onclick="next()">Next</button>
-<button onclick="toggleLoop()">Loop</button>
-<button onclick="toggleRepeat()">Repeat All</button>
-</div>
-
-<div class="card">
-<input id="playlistName" placeholder="Playlist name">
-<button onclick="savePlaylist()">Save Playlist</button>
-</div>
-
-<div id="podcastList"></div>
-</div>
-
-<!-- LIVE -->
-<div id="livePage" class="hidden">
-<div class="card">
-<h3>Live Broadcast</h3>
-<iframe id="liveFrame" width="100%" height="400"></iframe>
-</div>
-<div id="liveComments"></div>
-</div>
-
-<!-- ADMIN -->
-  <div id="adminLoginPage" class="hidden">
-<div class="card">
-<h3>Admin Login</h3>
-<input id="adminUser" placeholder="Username"><br><br>
-<input id="adminPass" type="password" placeholder="Password"><br><br>
-<button onclick="adminLogin()">Login</button>
-<div id="adminMsg"></div>
-</div>
-</div>
-<div id="adminPage" class="hidden">
-
-<div class="card">
-<h3>Upload Podcast</h3>
-<input id="pTitle" placeholder="Title"><br>
-<input id="pAudio" placeholder="Drive audio URL"><br>
-<input id="pCover" placeholder="Cover URL"><br>
-<button onclick="uploadPodcast()">Upload</button>
-</div>
-
-<div class="card">
-<h3>Create Event</h3>
-<input id="eTitle" placeholder="Event title"><br>
-<input id="eDate" placeholder="Date"><br>
-<button onclick="createEvent()">Create</button>
-</div>
-
-<div class="card">
-<h3>Set Live Broadcast</h3>
-<input id="liveIdInput" placeholder="YouTube Live ID">
-<button onclick="setLive()">Start</button>
-</div>
-
-</div>
-
-</div>
+<div class="player-dock">
+  <span id="nowPlaying">Nothing playing</span>
+  <button onclick="prevTrack()"><i class="fas fa-step-backward"></i></button>
+  <button onclick="togglePlay()"><i id="playIcon" class="fas fa-play"></i></button>
+  <button onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+  <button onclick="toggleLoop()"><i id="loopIcon" class="fas fa-redo"></i></button>
+  <div id="spotify-player"></div>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbyIfbX_CVhakdvVMFrXnqx_zWCpmk3xgFHd3yKxmJ8X3jmQaQx_h7GcIiOQdddusDKxfg/exec";
+  // App State
+  let playlist = [];
+  let currentIndex = 0;
+  let isLooping = false;
 
-/* ---------- NAVIGATION ---------- */
-function show(id){
-document.querySelectorAll("#feed > div").forEach(d=>d.classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
-}
+  // Initialize App
+  window.onload = () => {
+    loadFeed();
+    checkAdmin();
+  };
 
-/* ---------- POSTS ---------- */
-function createPost(){
-fetch(API,{
-method:"POST",
-body:JSON.stringify({
-action:"createPost",
-userId:"user1",
-text:postText.value
-})
-}).then(()=>loadPosts());
-}
+  function checkAdmin() {
+    google.script.run.withSuccessHandler(role => {
+      if(role === 'Admin') document.getElementById('adminPanel').style.display = 'block';
+    }).getUserRole();
+  }
 
-function loadPosts(){
-fetch(API+"?action=getPosts")
-.then(r=>r.json())
-.then(data=>{
-posts.innerHTML="";
-data.forEach(p=>{
-posts.innerHTML+=`
-<div class="card">
-${p.text}
-<div class="reactions">
-<span onclick="react('${p.id}','like')">👍</span>
-<span onclick="react('${p.id}','love')">❤️</span>
-<span onclick="react('${p.id}','angry')">😡</span>
-</div>
-</div>`;
-});
-});
-}
+  // Podcast / Audio Logic
+  function playPodcast(url, title) {
+    document.getElementById('nowPlaying').innerText = "Playing: " + title;
+    let audio = new Audio(url);
+    audio.play();
+    audio.onended = () => {
+      if(isLooping) { audio.play(); } 
+      else { nextTrack(); }
+    };
+  }
 
-function react(id,type){
-fetch(API,{
-method:"POST",
-body:JSON.stringify({
-action:"react",
-userId:"user1",
-targetId:id,
-type:"post",
-reaction:type
-})
-});
-}
+  // Spotify Integration using your Client ID 
+  function loadSpotify(trackId) {
+    const spotifyIframe = `<iframe src="https://open.spotify.com/embed/track/${trackId}" 
+      width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+    document.getElementById('spotify-player').innerHTML = spotifyIframe;
+  }
 
-/* ---------- PODCAST PLAYER ---------- */
-let playlist=[],current=0,loop=false,repeat=false;
-const player=document.getElementById("player");
+  // YouTube Live Integration 
+  function showTab(tab) {
+    const container = document.getElementById('mainContent');
+    if(tab === 'live') {
+      container.innerHTML = `
+        <div class="card">
+          <h3>Ntuconnect Live Broadcast</h3>
+          <iframe width="100%" height="400" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" frameborder="0" allowfullscreen></iframe>
+        </div>`;
+    } else if(tab === 'feed') {
+      location.reload();
+    }
+  }
 
-function play(i){
-current=i;
-player.src=playlist[i].audio;
-player.play();
-}
+  // Reaction Logic
+  function react(postId, emoji) {
+    google.script.run.withSuccessHandler(() => {
+      alert("Reacted with " + emoji);
+      loadFeed();
+    }).toggleReaction(postId, emoji);
+  }
 
-player.onended=()=>{
-if(loop) return play(current);
-if(current<playlist.length-1) current++;
-else if(repeat) current=0;
-else return;
-play(current);
-};
-
-function next(){ if(current<playlist.length-1) play(current+1); }
-function prev(){ if(current>0) play(current-1); }
-function toggleLoop(){ loop=!loop; alert("Loop:"+loop); }
-function toggleRepeat(){ repeat=!repeat; alert("Repeat:"+repeat); }
-
-/* ---------- ADMIN ---------- */
-async function uploadPodcast(){
-
-if(!isAdmin){
-alert("You must login as admin first");
-return;
-}
-
-const payload={
-action:"uploadPodcast",
-authUser:"admin",
-authPass:"admin123",
-title:document.getElementById("pTitle").value,
-audioUrl:document.getElementById("pAudio").value,
-coverUrl:document.getElementById("pCover").value,
-userId:"admin"
-};
-
-console.log("Sending payload:",payload);
-
-try{
-const res=await fetch(API,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(payload)
-});
-
-console.log("Raw response:",res);
-
-const text=await res.text();
-console.log("Server text:",text);
-
-alert("Server response: "+text);
-
-}catch(err){
-console.error("Upload error:",err);
-alert("Upload failed: "+err);
-}
-}
-function createEvent(){
-if(!isAdmin) return alert("Admin only");
-
-fetch(API,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-action:"createEvent",
-authUser:"admin",
-authPass:"admin123",
-title:eTitle.value,
-date:eDate.value
-})
-}).then(r=>r.json()).then(()=>alert("Event created"));
-}
-
-function setLive(){
-if(!isAdmin) return alert("Admin only");
-
-fetch(API,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-action:"setLive",
-authUser:"admin",
-authPass:"admin123",
-youtubeId:liveIdInput.value
-})
-}).then(r=>r.json()).then(()=>{
-liveFrame.src="https://www.youtube.com/embed/"+liveIdInput.value;
-alert("Live broadcast set");
-});
-}
-  let isAdmin=false;
-
-function showAdminLogin(){
-show("adminLoginPage");
-}
-
-function adminLogin(){
-const u=adminUser.value;
-const p=adminPass.value;
-
-if(u==="admin" && p==="admin123"){
-isAdmin=true;
-adminMsg.innerHTML="Login successful";
-show("adminPage");
-}else{
-adminMsg.innerHTML="Wrong credentials";
-}
-}
+  function loadFeed() {
+    google.script.run.withSuccessHandler(data => {
+      const container = document.getElementById('postsContainer');
+      container.innerHTML = data.posts.map(post => `
+        <div class="card">
+          <p><strong>${post[1]}</strong>: ${post[3]}</p>
+          <div class="reactions">
+            <button class="reaction-btn" onclick="react('${post[0]}', '❤️')">❤️</button>
+            <button class="reaction-btn" onclick="react('${post[0]}', '👍')">👍</button>
+            <button class="reaction-btn" onclick="react('${post[0]}', '😮')">😮</button>
+            <button class="reaction-btn" onclick="react('${post[0]}', '😡')">😡</button>
+          </div>
+        </div>
+      `).join('');
+    }).getFeed();
+  }
 </script>
-
 </body>
 </html>
-
-
-
-
