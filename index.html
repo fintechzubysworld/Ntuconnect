@@ -3,540 +3,524 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f0fff0">
   <title>Ntuconnect</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --primary: #004a99; --secondary: #f0f2f5; --dark: #222; }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--secondary);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter','Segoe UI',Roboto,sans-serif;
+      background:#ffffff;
+      color:#2d5a2d;
+      line-height:1.5;
+      min-height:100vh;
+      padding:16px;
     }
-    .header {
-      background: var(--primary);
-      color: white;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    header{
+      background:#f0fff0;
+      padding:0.9rem 1.8rem;
+      border-radius:60px;
+      margin-bottom:2rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 2px 8px rgba(0,80,0,0.1);
+      border:1px solid #2d5a2d;
     }
-    .container {
-      display: flex;
-      max-width: 1200px;
-      margin: 20px auto;
-      gap: 20px;
-      padding: 0 20px;
-      flex: 1;
+    header h2{
+      font-weight:500;
+      font-size:1.6rem;
+      letter-spacing:-0.5px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#2d5a2d;
     }
-    .sidebar {
-      width: 250px;
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      height: fit-content;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    #navArea{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    #navArea button{
+      background:#2d5a2d;
+      border:none;
+      padding:8px 18px;
+      border-radius:40px;
+      color:white;
+      font-weight:600;
+      font-size:0.95rem;
+      cursor:pointer;
+      transition:0.2s;
+      min-height:44px;
+      border:1px solid rgba(0,80,0,0.2);
     }
-    .sidebar h3 {
-      margin-bottom: 15px;
-      color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-      padding-bottom: 5px;
+    #navArea button:hover{background:#1e3e1e;}
+    .onlineDot{color:#2d5a2d;font-weight:600;margin-right:6px;font-size:0.95rem;}
+    .section{
+      max-width:1300px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:24px;
     }
-    .sidebar button {
-      width: 100%;
-      text-align: left;
-      padding: 10px 15px;
-      margin: 5px 0;
-      border: none;
-      background: none;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.2s;
+    .card{
+      background:#f8fff8;
+      border-radius:32px;
+      padding:24px;
+      box-shadow:0 4px 12px rgba(0,80,0,0.05);
+      border:1px solid #2d5a2d;
+      transition:transform 0.25s;
     }
-    .sidebar button:hover {
-      background: #e9ecef;
+    .card:hover{transform:translateY(-3px);}
+    .card h3{
+      color:#2d5a2d;
+      margin-bottom:16px;
+      font-size:1.4rem;
+      font-weight:500;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border-bottom:2px solid #b0d2b0;
+      padding-bottom:10px;
     }
-    .sidebar button i { margin-right: 10px; width: 20px; }
-    .admin-only {
-      display: none;
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
+    input,textarea,button{font-size:16px;}
+    input,textarea{
+      width:100%;
+      padding:14px 18px;
+      margin:8px 0;
+      border-radius:50px;
+      border:1px solid #2d5a2d;
+      background:#ffffff;
+      color:#2d5a2d;
     }
-    .admin-only h4 { color: #856404; margin-bottom: 10px; }
-    .admin-only button {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
-      color: #856404;
+    input:focus,textarea:focus{
+      outline:none;
+      border-color:#1e4a1e;
+      box-shadow:0 0 0 3px rgba(45,90,45,0.2);
     }
-    .feed {
-      flex: 1;
+    button{
+      background:#2d5a2d;
+      border:none;
+      padding:12px 24px;
+      border-radius:50px;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.2s;
+      min-height:48px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      border:1px solid rgba(0,80,0,0.2);
     }
-    .card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    button:hover{background:#1e3e1e;}
+    button.secondary{background:#e0f0e0;color:#2d5a2d;border:1px solid #2d5a2d;}
+    button.secondary:hover{background:#c0e0c0;}
+    .feed-item,.chat-item,.goodwill-item,.live-comment-item,.event-item{
+      background:#f0fff0;
+      border-radius:24px;
+      padding:18px;
+      margin:18px 0;
+      border-left:5px solid #2d5a2d;
+      box-shadow:0 2px 8px rgba(0,80,0,0.05);
     }
-    .card textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      resize: vertical;
-      font-family: inherit;
-      margin-bottom: 10px;
+    .replyBox{
+      margin-left:16px;
+      padding-left:16px;
+      border-left:3px solid #b0d2b0;
+      margin-top:12px;
     }
-    .card button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 5px;
-      cursor: pointer;
+    .timestamp{font-size:0.7rem;color:#4d7a4d;margin-top:8px;}
+    .embedded-media{margin:12px 0;border-radius:20px;overflow:hidden;}
+    .embedded-media img,.embedded-media iframe{max-width:100%;border-radius:20px;}
+    .embedded-media iframe{height:210px;}
+    .reaction-bar{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .reaction-btn{
+      background:none;
+      border:1px solid #2d5a2d;
+      color:#2d5a2d;
+      cursor:pointer;
+      padding:8px 18px;
+      border-radius:40px;
+      transition:0.2s;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:0.9rem;
     }
-    .reactions {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
+    .reaction-btn:hover{background:#e0f0e0;}
+    .reaction-btn.liked{background:#2d5a2d;color:white;font-weight:600;}
+    .modal{
+      position:fixed;
+      z-index:2000;
+      left:0;top:0;
+      width:100%;height:100%;
+      background-color:rgba(0,40,0,0.5);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
     }
-    .reaction-btn {
-      border: none;
-      background: #f8f9fa;
-      padding: 5px 10px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .modal-content{
+      background:#ffffff;
+      padding:28px 26px;
+      border-radius:48px;
+      width:100%;
+      max-width:500px;
+      max-height:90vh;
+      overflow-y:auto;
+      color:#2d5a2d;
+      border:2px solid #2d5a2d;
+      box-shadow:0 20px 30px rgba(0,40,0,0.2);
+      position:relative;
     }
-    .reaction-btn:hover { background: #e9ecef; }
-    .reaction-count { font-size: 0.9rem; color: #555; }
-    .player-dock {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: var(--dark);
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      z-index: 1000;
+    .close{
+      position:absolute;
+      top:18px;right:22px;
+      font-size:32px;
+      font-weight:300;
+      cursor:pointer;
+      color:#4d7a4d;
+      line-height:1;
+      transition:0.2s;
     }
-    .player-dock span { font-size: 0.95rem; }
-    .player-dock button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.3rem;
-      cursor: pointer;
-      padding: 5px 10px;
+    .close:hover{color:#2d5a2d;}
+    .chat-messages{max-height:300px;overflow-y:auto;margin:15px 0;padding:12px;background:#f0fff0;border-radius:28px;}
+    .chat-message{margin-bottom:10px;padding:8px 14px;border-radius:22px;max-width:80%;word-wrap:break-word;}
+    .chat-message.sent{background:#2d5a2d;color:white;margin-left:auto;}
+    .chat-message.received{background:#e0f0e0;color:#2d5a2d;margin-right:auto;}
+    .chat-input-area{display:flex;gap:10px;flex-wrap:wrap;}
+    .chat-input-area input{flex:1 1 200px;margin:0;}
+    .inbox-list{max-height:400px;overflow-y:auto;}
+    .inbox-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px;
+      background:#f0fff0;
+      border-radius:40px;
+      margin-bottom:12px;
+      cursor:pointer;
+      gap:12px;
+      border:1px solid #b0d2b0;
     }
-    .player-dock button:hover { color: var(--primary); }
-    #spotify-player { margin-left: 15px; }
-    #loginOverlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
+    .inbox-item:hover{background:#e0f0e0;}
+    .inbox-item-name{font-weight:600;color:#2d5a2d;}
+    .inbox-item-preview{font-size:0.85rem;color:#4d7a4d;}
+    .marquee{
+      width:100%;
+      overflow:hidden;
+      background:#f0fff0;
+      padding:8px 0;
+      margin-bottom:20px;
+      border-radius:60px;
+      border:1px solid #2d5a2d;
     }
-    .login-card {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
+    .marquee h6{
+      display:inline-block;
+      margin:0;
+      font-size:0.9rem;
+      color:#2d5a2d;
+      animation:scrollText 22s linear infinite;
+      white-space:nowrap;
+      font-weight:400;
     }
-    .login-card img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-bottom: 15px;
+    @keyframes scrollText{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+    .clickable-name{color:#2d5a2d;font-weight:600;cursor:pointer;text-decoration:underline;}
+    .unread-badge{background:#ff6b4a;color:white;border-radius:20px;padding:2px 8px;font-size:0.8rem;margin-left:8px;display:inline-block;font-weight:600;}
+    @media (max-width:480px){
+      body{padding:10px;}
+      header{padding:0.7rem 1.2rem;}
+      .card{padding:18px;}
+      .section{gap:16px;}
+      button{width:100%;}
+      .embedded-media iframe{height:200px;}
+      .modal-content{padding:20px;}
     }
-    .login-card input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+    @media (max-width:360px){
+      .card h3{font-size:1.2rem;}
+      .feed-item,.chat-item,.goodwill-item{padding:12px;}
+      .reaction-btn{padding:6px 12px;}
     }
-    .login-card button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 1rem;
-    }
-    .login-card .error { color: red; font-size: 0.9rem; margin-top: 10px; }
-    .music-list {
-      list-style: none;
-    }
-    .music-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-    }
-    .music-list li button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 5px 15px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1><i class="fas fa-graduation-cap"></i> Ntuconnect</h1>
+<header>
+  <h2><i class="fa-solid fa-leaf" style="color:#2d5a2d;"></i> Ntuconnect</h2>
+  <div id="navArea"></div>
+</header>
+<div class="marquee">
+  <h6>⚡ Powered by Zuby's World IT solutions. Contact: fintech.zubysworld@gmail.com</h6>
+</div>
+<div class="section">
+  <!-- LIVE STREAM -->
+  <div class="card">
+    <h3><i class="fa-solid fa-circle" style="color:#2d5a2d;"></i> Live Stream</h3>
+    <div id="liveArea">Loading...</div>
+    <textarea id="liveCommentInput" placeholder="Write a comment..."></textarea>
+    <button onclick="commentLive()"><i class="fa-regular fa-comment"></i> Comment</button>
+    <div id="liveComments"></div>
   </div>
-
-  <div class="container">
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-      <h3>Menu</h3>
-      <button onclick="showTab('feed')"><i class="fas fa-home"></i> Home Feed</button>
-      <button onclick="showTab('music')"><i class="fas fa-music"></i> Music</button>
-      <button onclick="showTab('live')"><i class="fab fa-youtube"></i> YouTube Live</button>
-      <div id="adminPanel" class="admin-only">
-        <h4>Admin Tools</h4>
-        <button onclick="uploadContent()"><i class="fas fa-upload"></i> Upload Content</button>
-      </div>
+  <!-- EVENTS -->
+  <div class="card">
+    <h3><i class="fa-regular fa-calendar"></i> Events</h3>
+    <div id="eventArea"></div>
+  </div>
+  <!-- FEED -->
+  <div class="card">
+    <h3><i class="fa-regular fa-newspaper"></i> Community Feed</h3>
+    <textarea id="feedInput" placeholder="Share something..."></textarea>
+    <button onclick="postFeed()"><i class="fa-regular fa-paper-plane"></i> Post</button>
+    <div id="feedArea"></div>
+  </div>
+  <!-- CHAT -->
+  <div class="card">
+    <h3><i class="fa-regular fa-message"></i> Community Chat</h3>
+    <div id="chatArea"></div>
+    <input id="chatInput" placeholder="Type a message...">
+    <button onclick="sendChat()"><i class="fa-regular fa-paper-plane"></i> Send</button>
+  </div>
+  <!-- GOODWILL -->
+  <div class="card">
+    <h3><i class="fa-regular fa-handshake"></i> Goodwill Messages</h3>
+    <textarea id="goodwillInput" placeholder="Write a goodwill message..."></textarea>
+    <button onclick="postGoodwill()"><i class="fa-regular fa-heart"></i> Post</button>
+    <div id="goodwillArea"></div>
+  </div>
+</div>
+<!-- AUTH MODAL -->
+<div id="authContainer" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('authContainer').style.display='none'">&times;</span>
+    <h3 id="authHeader" style="color:#2d5a2d;">Login</h3>
+    <div id="registerFields" style="display:none;">
+      <input id="regName" placeholder="Full Name">
+      <input id="regKindred" placeholder="Kindred Name">
     </div>
-
-    <!-- Main Content Area -->
-    <div class="feed" id="mainContent">
-      <!-- Feed will be loaded here dynamically -->
+    <input id="authEmail" placeholder="Email">
+    <input id="authPassword" type="password" placeholder="Password">
+    <button id="authSubmitBtn" style="background:#2d5a2d;">Login</button>
+    <p style="margin-top:15px;"><span id="toggleText">Don't have an account?</span> <a href="#" onclick="toggleAuthMode(event)" style="color:#2d5a2d; font-weight:600;">Click here</a></p>
+    <div id="authMessage"></div>
+  </div>
+</div>
+<!-- Profile Modal -->
+<div id="profileModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeProfileModal()">&times;</span>
+    <h3><i class="fa-regular fa-user"></i> User Profile</h3>
+    <div id="profileInfo"></div>
+    <button id="startPrivateChatBtn" onclick="startPrivateChatFromProfile()">💬 Private Chat</button>
+  </div>
+</div>
+<!-- Inbox Modal -->
+<div id="inboxModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeInboxModal()">&times;</span>
+    <h3><i class="fa-regular fa-envelope"></i> Inbox</h3>
+    <div id="inboxList" class="inbox-list">Loading...</div>
+  </div>
+</div>
+<!-- Private Chat Modal -->
+<div id="chatModal" class="modal" style="display:none;">
+  <div class="modal-content chat-modal">
+    <span class="close" onclick="closeChatModal()">&times;</span>
+    <h3 id="chatWith"></h3>
+    <div id="privateChatMessages" class="chat-messages"></div>
+    <div class="chat-input-area">
+      <input type="text" id="privateChatInput" placeholder="Type a message...">
+      <button onclick="sendPrivateMessage()">Send</button>
     </div>
   </div>
+</div>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDA02mVmQxC_cu2QCyq4NN8LhQIWo50V5A",
+    authDomain: "ntudioka-online-c29d8.firebaseapp.com",
+    projectId: "ntudioka-online-c29d8",
+    storageBucket: "ntudioka-online-c29d8.firebasestorage.app",
+    messagingSenderId: "1015621578149",
+    appId: "1:1015621578149:web:c755b458e505fd32928c4c",
+    measurementId: "G-JPVKYQRKEB"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  let currentUser = null;
 
-  <!-- Audio Player Dock -->
-  <div class="player-dock">
-    <span id="nowPlaying">Nothing playing</span>
-    <button onclick="prevTrack()" title="Previous"><i class="fas fa-step-backward"></i></button>
-    <button onclick="togglePlay()" title="Play/Pause"><i id="playIcon" class="fas fa-play"></i></button>
-    <button onclick="nextTrack()" title="Next"><i class="fas fa-step-forward"></i></button>
-    <button onclick="toggleLoop()" title="Loop"><i id="loopIcon" class="fas fa-redo"></i></button>
-    <div id="spotify-player"></div>
-  </div>
-
-  <!-- Login Overlay -->
-  <div id="loginOverlay">
-    <div class="login-card">
-      <img src="https://via.placeholder.com/80" alt="Ntuconnect Logo">
-      <h2>Welcome to Ntuconnect</h2>
-      <p>Please log in with Admin credentials.</p>
-      <input type="text" id="username" placeholder="Username" autocomplete="off" value="Admin">
-      <input type="password" id="password" placeholder="Password" value="admin123">
-      <button onclick="authenticateUser()">Log In</button>
-      <p id="authMsg" class="error"></p>
-    </div>
-  </div>
-
-  <script>
-    // ---------- Configuration ----------
-    const API_BASE = '/api';  // Change to your backend URL (e.g., 'http://localhost:3000/api')
-    
-    // ---------- Global State ----------
-    let currentUser = null;
-    let authToken = localStorage.getItem('token') || null;
-    let playlist = [];                // List of tracks { id, title, url, spotifyId? }
-    let currentTrackIndex = 0;
-    let isPlaying = false;
-    let loopEnabled = false;
-    let audio = new Audio();
-    
-    // UI Elements
-    const loginOverlay = document.getElementById('loginOverlay');
-    const mainContent = document.getElementById('mainContent');
-    const nowPlayingSpan = document.getElementById('nowPlaying');
-    const playIcon = document.getElementById('playIcon');
-    const loopIcon = document.getElementById('loopIcon');
-    const adminPanel = document.getElementById('adminPanel');
-
-    // ---------- Hardcoded Authentication ----------
-    function authenticateUser() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const msgEl = document.getElementById('authMsg');
-      
-      // Hardcoded check for Admin / admin123
-      if (username === 'Admin' && password === 'admin123') {
-        // Create a user object
-        currentUser = { username: 'Admin', role: 'admin' };
-        authToken = 'dummy-token-' + Date.now();  // simple token
-        localStorage.setItem('token', authToken);
-        localStorage.setItem('user', JSON.stringify(currentUser));
-        
-        loginOverlay.classList.add('hidden');
-        checkAdmin();
-        showTab('feed');  // Load feed after login
-      } else {
-        msgEl.textContent = 'Invalid credentials. Use Admin / admin123';
-      }
+  function parseContent(text){
+    if(!text) return '';
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s]*)/g;
+    const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|bmp|svg))(?:\?.*)?/gi;
+    let parts = [], lastIndex = 0, match;
+    while((match = urlRegex.exec(text)) !== null){
+      const url = match[0], index = match.index;
+      if(index > lastIndex) parts.push({type:'text',content:text.substring(lastIndex,index)});
+      let ytMatch = youtubeRegex.exec(url);
+      if(ytMatch) parts.push({type:'youtube',content:ytMatch[1]});
+      else if(imageRegex.test(url)) parts.push({type:'image',content:url});
+      else parts.push({type:'link',content:url});
+      lastIndex = index + url.length;
     }
-
-    // Check if user is admin (based on stored user info)
-    function checkAdmin() {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.role === 'admin') {
-        adminPanel.style.display = 'block';
-      } else {
-        adminPanel.style.display = 'none';
-      }
-    }
-
-    // Auto-login if token exists (using stored user)
-    (function initAuth() {
-      const storedUser = localStorage.getItem('user');
-      const storedToken = localStorage.getItem('token');
-      if (storedUser && storedToken) {
-        currentUser = JSON.parse(storedUser);
-        authToken = storedToken;
-        loginOverlay.classList.add('hidden');
-        checkAdmin();
-        showTab('feed');
-      }
-    })();
-
-    // ---------- Tab Navigation ----------
-    async function showTab(tab) {
-      if (!authToken) {
-        alert('Please log in first.');
-        return;
-      }
-
-      if (tab === 'feed') {
-        await loadFeed();
-      } else if (tab === 'music') {
-        await loadMusic();
-      } else if (tab === 'live') {
-        loadLive();
-      }
-    }
-
-    // ---------- Feed ----------
-    async function loadFeed() {
-      try {
-        const res = await fetch(`${API_BASE}/posts`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        const posts = await res.json();
-        renderFeed(posts);
-      } catch (error) {
-        mainContent.innerHTML = '<div class="card">Error loading feed. Make sure your backend is running.</div>';
-      }
-    }
-
-    function renderFeed(posts) {
-      let html = `
-        <div class="card">
-          <textarea id="postText" placeholder="Share a goodwill message..." rows="3"></textarea>
-          <button onclick="submitPost()">Post</button>
-        </div>
-      `;
-      posts.forEach(post => {
-        html += `
-          <div class="card" data-post-id="${post.id}">
-            <p><strong>${post.author}</strong>: ${post.content}</p>
-            <div class="reactions">
-              <button class="reaction-btn" onclick="react('${post.id}', '❤️')">
-                ❤️ <span class="reaction-count">${post.reactions?.heart || 0}</span>
-              </button>
-              <button class="reaction-btn" onclick="react('${post.id}', '👍')">
-                👍 <span class="reaction-count">${post.reactions?.like || 0}</span>
-              </button>
-              <button class="reaction-btn" onclick="react('${post.id}', '😮')">
-                😮 <span class="reaction-count">${post.reactions?.surprise || 0}</span>
-              </button>
-              <button class="reaction-btn" onclick="react('${post.id}', '😡')">
-                😡 <span class="reaction-count">${post.reactions?.anger || 0}</span>
-              </button>
-            </div>
-          </div>
-        `;
-      });
-      mainContent.innerHTML = html;
-    }
-
-    async function submitPost() {
-      const text = document.getElementById('postText')?.value.trim();
-      if (!text) return;
-      try {
-        await fetch(`${API_BASE}/posts`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({ content: text })
-        });
-        document.getElementById('postText').value = '';
-        loadFeed(); // Refresh
-      } catch (error) {
-        alert('Failed to post.');
-      }
-    }
-
-    async function react(postId, emoji) {
-      try {
-        await fetch(`${API_BASE}/posts/${postId}/react`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({ emoji })
-        });
-        loadFeed(); // Refresh to show updated counts
-      } catch (error) {
-        alert('Reaction failed.');
-      }
-    }
-
-    // ---------- Music Library ----------
-    async function loadMusic() {
-      try {
-        const res = await fetch(`${API_BASE}/music`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        playlist = await res.json();
-        renderMusicList();
-      } catch (error) {
-        mainContent.innerHTML = '<div class="card">Could not load music. Check backend.</div>';
-      }
-    }
-
-    function renderMusicList() {
-      let html = '<div class="card"><h3>Music Library</h3><ul class="music-list">';
-      playlist.forEach((track, index) => {
-        html += `
-          <li>
-            <span>${track.title}</span>
-            <button onclick="playTrack(${index})"><i class="fas fa-play"></i> Play</button>
-          </li>
-        `;
-      });
-      html += '</ul></div>';
-      mainContent.innerHTML = html;
-    }
-
-    // ---------- Audio Player Control ----------
-    function playTrack(index) {
-      if (!playlist.length) return;
-      currentTrackIndex = index;
-      const track = playlist[index];
-      audio.src = track.url;
-      audio.play();
-      isPlaying = true;
-      playIcon.className = 'fas fa-pause';
-      nowPlayingSpan.textContent = `Playing: ${track.title}`;
-
-      // Optional: embed Spotify if track has spotifyId
-      if (track.spotifyId) {
-        document.getElementById('spotify-player').innerHTML = `
-          <iframe src="https://open.spotify.com/embed/track/${track.spotifyId}" 
-            width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-        `;
-      } else {
-        document.getElementById('spotify-player').innerHTML = '';
-      }
-    }
-
-    function togglePlay() {
-      if (!playlist.length) return;
-      if (isPlaying) {
-        audio.pause();
-        playIcon.className = 'fas fa-play';
-      } else {
-        audio.play();
-        playIcon.className = 'fas fa-pause';
-      }
-      isPlaying = !isPlaying;
-    }
-
-    function nextTrack() {
-      if (!playlist.length) return;
-      currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-      playTrack(currentTrackIndex);
-    }
-
-    function prevTrack() {
-      if (!playlist.length) return;
-      currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-      playTrack(currentTrackIndex);
-    }
-
-    function toggleLoop() {
-      loopEnabled = !loopEnabled;
-      loopIcon.style.color = loopEnabled ? '#004a99' : 'white';
-      audio.loop = loopEnabled;
-    }
-
-    // Auto-advance when track ends
-    audio.addEventListener('ended', () => {
-      if (!loopEnabled) {
-        nextTrack();
-      }
+    if(lastIndex < text.length) parts.push({type:'text',content:text.substring(lastIndex)});
+    if(parts.length === 0) return escapeHtml(text);
+    let html = '';
+    parts.forEach(part => {
+      if(part.type === 'text') html += escapeHtml(part.content);
+      else if(part.type === 'link') html += `<a href="${part.content}" target="_blank" rel="noopener" style="color:#2d5a2d;">${part.content}</a>`;
+      else if(part.type === 'image') html += `<div class="embedded-media"><img src="${part.content}" alt="image" loading="lazy"></div>`;
+      else if(part.type === 'youtube') html += `<div class="embedded-media"><iframe src="https://www.youtube.com/embed/${part.content}" allowfullscreen></iframe></div>`;
     });
+    return html;
+  }
+  function escapeHtml(unsafe){return unsafe.replace(/[&<>"']/g,function(m){if(m==='&') return '&amp;';if(m==='<') return '&lt;';if(m==='>') return '&gt;';if(m==='"') return '&quot;';return '&#039;';});}
+  function formatTimestamp(ts){if(!ts)return '';try{let date=ts.toDate?ts.toDate():new Date(ts);if(isNaN(date.getTime()))return '';return date.toLocaleString();}catch(e){return '';}}
+  function formatRelativeTime(ts){if(!ts)return '';try{let date=ts.toDate?ts.toDate():new Date(ts);if(isNaN(date.getTime()))return '';let diffSeconds=Math.floor((Date.now()-date)/1000);if(diffSeconds<60)return 'just now';if(diffSeconds<3600)return Math.floor(diffSeconds/60)+'m ago';if(diffSeconds<86400)return Math.floor(diffSeconds/3600)+'h ago';return Math.floor(diffSeconds/86400)+'d ago';}catch(e){return '';}}
+  function addReactionUI(targetType,targetId,container){
+    const reactDiv = document.createElement('div');
+    reactDiv.className = 'reaction-bar';
+    reactDiv.innerHTML = `<button class="reaction-btn like-btn" data-type="${targetType}" data-id="${targetId}"><i class="fa-regular fa-thumbs-up"></i> <span class="reaction-count">0</span></button>`;
+    container.appendChild(reactDiv);
+    const likeBtn = reactDiv.querySelector('.like-btn');
+    const countSpan = likeBtn.querySelector('.reaction-count');
+    const userId = currentUser?.uid;
+    let docRef = targetType.includes('/') ? (targetId ? db.doc(targetType) : db.collection(targetType).doc(targetId)) : db.collection(targetType).doc(targetId);
+    const reactionsRef = docRef.collection('reactions');
+    const unsubscribe = reactionsRef.onSnapshot(snapshot => {
+      let count = 0, userLiked = false;
+      snapshot.forEach(doc => {if(doc.data().type === 'like'){count++; if(userId && doc.id === userId) userLiked = true;}});
+      countSpan.textContent = count;
+      if(userLiked){likeBtn.classList.add('liked'); likeBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> <span class="reaction-count">${count}</span>`;}
+      else{likeBtn.classList.remove('liked'); likeBtn.innerHTML = `<i class="fa-regular fa-thumbs-up"></i> <span class="reaction-count">${count}</span>`;}
+    });
+    likeBtn.addEventListener('click', async () => {
+      if(!currentUser) return alert('Login required');
+      const reactionDoc = reactionsRef.doc(currentUser.uid);
+      const doc = await reactionDoc.get();
+      if(doc.exists) await reactionDoc.delete();
+      else await reactionDoc.set({type:'like',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    });
+    return unsubscribe;
+  }
 
-    // ---------- YouTube Live ----------
-    function loadLive() {
-      // Replace YOUR_CHANNEL_ID with your actual YouTube channel ID
-      const channelId = 'YOUR_CHANNEL_ID'; 
-      mainContent.innerHTML = `
-        <div class="card">
-          <h3>Ntuconnect Live Broadcast</h3>
-          <iframe width="100%" height="400" 
-            src="https://www.youtube.com/embed/live_stream?channel=${channelId}" 
-            frameborder="0" allowfullscreen></iframe>
-        </div>
-      `;
+  let authMode = "login";
+  const navArea = document.getElementById("navArea");
+  const authContainer = document.getElementById("authContainer");
+  window.showAuth = function(){authContainer.style.display = "flex";};
+  window.toggleAuthMode = function(e){
+    e.preventDefault();
+    authMode = authMode === "login" ? "register" : "login";
+    document.getElementById("registerFields").style.display = authMode === "register" ? "block" : "none";
+    document.getElementById("authHeader").innerText = authMode === "login" ? "Login" : "Register";
+    document.getElementById("authSubmitBtn").innerText = authMode === "login" ? "Login" : "Register";
+    document.getElementById("toggleText").innerText = authMode === "login" ? "Don't have an account?" : "Already have an account?";
+  };
+  document.getElementById("authSubmitBtn").onclick = function(){
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value.trim();
+    if(authMode === "register"){
+      const name = document.getElementById("regName").value.trim();
+      const kindred = document.getElementById("regKindred").value.trim();
+      if(!name||!kindred||!email||!password) return alert("All fields required");
+      auth.createUserWithEmailAndPassword(email,password)
+        .then(cred => db.collection("users").doc(cred.user.uid).set({name,kindred,email,online:true,lastSeen:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),isAdmin:false}))
+        .then(()=>{alert("Registered");authContainer.style.display="none";clearAuth();})
+        .catch(showError);
+    } else {
+      auth.signInWithEmailAndPassword(email,password)
+        .then(()=>{alert("Login successful");authContainer.style.display="none";clearAuth();})
+        .catch(showError);
     }
+  };
+  function clearAuth(){
+    document.getElementById("authEmail").value="";
+    document.getElementById("authPassword").value="";
+    if(document.getElementById("regName")) document.getElementById("regName").value="";
+    if(document.getElementById("regKindred")) document.getElementById("regKindred").value="";
+  }
+  window.logout = function(){
+    if(currentUser) db.collection("users").doc(currentUser.uid).update({online:false,lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(showError);
+    auth.signOut().catch(showError);
+  };
+  auth.onAuthStateChanged(user=>{
+    currentUser = user;
+    if(user){
+      db.collection("users").doc(user.uid).update({online:true}).catch(showError);
+      db.collection("users").doc(user.uid).get().then(doc=>{
+        const userData = doc.data()||{};
+        const isAdmin = userData.isAdmin||false;
+        navArea.innerHTML = `<span class="onlineDot">● Online</span><button onclick="showInbox()"><i class="fa-regular fa-envelope"></i> Inbox</button><button onclick="logout()">Logout</button>${isAdmin?`<button onclick="window.location='ntuonline.html'">Admin</button>`:""}`;
+      }).catch(showError);
+    }else{
+      navArea.innerHTML = `<button onclick="showAuth()">Login / Register</button>`;
+    }
+  });
+  window.addEventListener("beforeunload",()=>{if(currentUser) db.collection("users").doc(currentUser.uid).update({online:false,lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(showError);});
+  function showError(err){alert("Error: "+err.message);console.error(err);}
 
-    // ---------- Admin: Upload Content ----------
-    async function uploadContent() {
-      // Simple prompt for file URL and title – in production use a proper form
-      const title = prompt('Enter track title:');
-      if (!title) return;
-      const url = prompt('Enter audio file URL:');
-      if (!url) return;
-      
-      try {
-        await fetch(`${API_BASE}/admin/upload`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({ title, url })
-        });
-        alert('Upload successful!');
-        if (mainContent.querySelector('.music-list')) loadMusic(); // refresh if music tab open
-      } catch (error) {
-        alert('Upload failed.');
-      }
-    }
-  </script>
+  // Feed
+  db.collection("feed").orderBy("created","desc").onSnapshot(s=>{
+    const feedArea=document.getElementById("feedArea");feedArea.innerHTML="";
+    s.forEach(doc=>{const p=doc.data(),feedId=doc.id,feedDiv=document.createElement('div');feedDiv.className="feed-item";feedDiv.id=`feed-${feedId}`;
+    feedDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${p.userId||''}')">${p.name??'?'}</span> (${p.kindred??'?'})</strong><div>${parseContent(p.text)}</div><div class="timestamp">${formatTimestamp(p.created)}</div><div id="feedReplies${feedId}" class="replies"></div><input id="replyFeed${feedId}" placeholder="Reply..."><button onclick="replyFeed('${feedId}')">Reply</button>`;
+    feedArea.appendChild(feedDiv);addReactionUI('feed',feedId,feedDiv);loadReplies("feed",feedId,"feedReplies");});
+  },showError);
+  window.replyFeed=function(id){if(!currentUser)return alert("Login required");const input=document.getElementById("replyFeed"+id);if(!input||!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("feed").doc(id).collection("replies").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadReplies(collection,id,containerPrefix){db.collection(collection).doc(id).collection("replies").orderBy("created").onSnapshot(s=>{const box=document.getElementById(containerPrefix+id);if(!box)return;box.innerHTML="";s.forEach(doc=>{const r=doc.data(),replyDiv=document.createElement('div');replyDiv.className="replyBox";replyDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${r.userId||''}')">${r.name??'?'}</span> (${r.kindred??'?'})</strong><div>${parseContent(r.text)}</div><div class="timestamp">${formatTimestamp(r.created)}</div>`;box.appendChild(replyDiv);addReactionUI(`${collection}/${id}/replies`,doc.id,replyDiv);});},showError);}
+
+  // Chat
+  window.sendChat=function(){if(!currentUser)return alert("Login required");const input=document.getElementById("chatInput");if(!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("chat").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  db.collection("chat").orderBy("created").onSnapshot(s=>{const chatArea=document.getElementById("chatArea");chatArea.innerHTML="";s.forEach(doc=>{const m=doc.data(),chatId=doc.id,chatDiv=document.createElement('div');chatDiv.className="chat-item";chatDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${m.userId||''}')">${m.name??'?'}</span> (${m.kindred??'?'})</strong><span>: ${parseContent(m.text)}</span><div class="timestamp">${formatTimestamp(m.created)}</div><div id="chatReplies${chatId}" class="replies"></div><input id="chatReplyInput${chatId}" placeholder="Reply..."><button onclick="replyChat('${chatId}')">Reply</button>`;chatArea.appendChild(chatDiv);addReactionUI('chat',chatId,chatDiv);loadChatReplies(chatId);});},showError);
+  window.replyChat=function(chatId){if(!currentUser)return alert("Login required");const input=document.getElementById("chatReplyInput"+chatId);if(!input||!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("chat").doc(chatId).collection("replies").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadChatReplies(chatId){db.collection("chat").doc(chatId).collection("replies").orderBy("created").onSnapshot(s=>{const container=document.getElementById("chatReplies"+chatId);if(!container)return;container.innerHTML="";s.forEach(doc=>{const r=doc.data(),replyDiv=document.createElement('div');replyDiv.className="replyBox";replyDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${r.userId||''}')">${r.name??'?'}</span> (${r.kindred??'?'})</strong>: ${parseContent(r.text)}<div class="timestamp">${formatTimestamp(r.created)}</div>`;container.appendChild(replyDiv);addReactionUI(`chat/${chatId}/replies`,doc.id,replyDiv);});},showError);}
+
+  // Goodwill
+  window.postGoodwill=function(){if(!currentUser)return alert("Login required");const input=document.getElementById("goodwillInput");if(!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("goodwill").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  db.collection("goodwill").orderBy("created","desc").onSnapshot(s=>{const goodwillArea=document.getElementById("goodwillArea");goodwillArea.innerHTML="";s.forEach(doc=>{const g=doc.data(),goodwillId=doc.id,goodwillDiv=document.createElement('div');goodwillDiv.className="goodwill-item";goodwillDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${g.userId||''}')">${g.name??'?'}</span> (${g.kindred??'?'})</strong><div>${parseContent(g.text)}</div><div class="timestamp">${formatTimestamp(g.created)}</div><div id="goodwillReplies${goodwillId}" class="replies"></div><input id="goodwillReplyInput${goodwillId}" placeholder="Reply..."><button onclick="replyGoodwill('${goodwillId}')">Reply</button>`;goodwillArea.appendChild(goodwillDiv);addReactionUI('goodwill',goodwillId,goodwillDiv);loadGoodwillReplies(goodwillId);});},showError);
+  window.replyGoodwill=function(goodwillId){if(!currentUser)return alert("Login required");const input=document.getElementById("goodwillReplyInput"+goodwillId);if(!input||!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("goodwill").doc(goodwillId).collection("replies").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadGoodwillReplies(goodwillId){db.collection("goodwill").doc(goodwillId).collection("replies").orderBy("created").onSnapshot(s=>{const container=document.getElementById("goodwillReplies"+goodwillId);if(!container)return;container.innerHTML="";s.forEach(doc=>{const r=doc.data(),replyDiv=document.createElement('div');replyDiv.className="replyBox";replyDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${r.userId||''}')">${r.name??'?'}</span> (${r.kindred??'?'})</strong>: ${parseContent(r.text)}<div class="timestamp">${formatTimestamp(r.created)}</div>`;container.appendChild(replyDiv);addReactionUI(`goodwill/${goodwillId}/replies`,doc.id,replyDiv);});},showError);}
+
+  // Live
+  db.collection("live").doc("current").onSnapshot(doc=>{const liveArea=document.getElementById("liveArea");if(doc.exists){const d=doc.data();liveArea.innerHTML=`<h4>${d.title||'Live Stream'}</h4><iframe width="100%" height="315" src="https://www.youtube.com/embed/${d.videoId||''}" allowfullscreen></iframe>`;}else{liveArea.innerHTML="<p style='text-align:center;'>🔴 Currently Offline</p>";}},showError);
+  window.commentLive=function(){if(!currentUser)return alert("Login required");const input=document.getElementById("liveCommentInput");if(!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("live").doc("current").collection("comments").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  db.collection("live").doc("current").collection("comments").orderBy("created").onSnapshot(s=>{const liveComments=document.getElementById("liveComments");liveComments.innerHTML="";s.forEach(doc=>{const c=doc.data(),commentId=doc.id,commentDiv=document.createElement('div');commentDiv.className="live-comment-item";commentDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${c.userId||''}')">${c.name??'?'}</span> (${c.kindred??'?'})</strong>: ${parseContent(c.text)}<div class="timestamp">${formatTimestamp(c.created)}</div><div id="liveReplies${commentId}" class="replies"></div><input id="liveReplyInput${commentId}" placeholder="Reply..."><button onclick="replyLiveComment('${commentId}')">Reply</button>`;liveComments.appendChild(commentDiv);addReactionUI('live/current/comments',commentId,commentDiv);loadLiveReplies(commentId);});},showError);
+  window.replyLiveComment=function(commentId){if(!currentUser)return alert("Login required");const input=document.getElementById("liveReplyInput"+commentId);if(!input||!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("live").doc("current").collection("comments").doc(commentId).collection("replies").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadLiveReplies(commentId){db.collection("live").doc("current").collection("comments").doc(commentId).collection("replies").orderBy("created").onSnapshot(s=>{const container=document.getElementById("liveReplies"+commentId);if(!container)return;container.innerHTML="";s.forEach(doc=>{const r=doc.data(),replyDiv=document.createElement('div');replyDiv.className="replyBox";replyDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${r.userId||''}')">${r.name??'?'}</span> (${r.kindred??'?'})</strong>: ${parseContent(r.text)}<div class="timestamp">${formatTimestamp(r.created)}</div>`;container.appendChild(replyDiv);addReactionUI(`live/current/comments/${commentId}/replies`,doc.id,replyDiv);});},showError);}
+
+  // Events
+  db.collection("events").orderBy("created","desc").onSnapshot(s=>{const eventArea=document.getElementById("eventArea");eventArea.innerHTML="";s.forEach(doc=>{const e=doc.data(),eventId=doc.id;let mediaHtml='';if(e.image)mediaHtml+=`<div class="embedded-media"><img src="${e.image}" alt="event image"></div>`;if(e.video){const videoId=e.video.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(videoId)mediaHtml+=`<div class="embedded-media"><iframe src="https://www.youtube.com/embed/${videoId[1]}" allowfullscreen></iframe></div>`;else mediaHtml+=`<p><a href="${e.video}" target="_blank" style="color:#2d5a2d;">Watch Video</a></p>`;}if(e.audio)mediaHtml+=`<audio controls src="${e.audio}" style="width:100%; margin:10px 0;"></audio>`;const eventDiv=document.createElement('div');eventDiv.className="event-item";eventDiv.id=`event-${eventId}`;eventDiv.innerHTML=`<h4>${e.title||'Untitled'}</h4><p>${e.description?parseContent(e.description):''}</p><p><small>${e.date||''}</small></p>${mediaHtml}<div id="eventComments${eventId}" class="replies"></div><input id="eventCommentInput${eventId}" placeholder="Comment on this event..."><button onclick="commentEvent('${eventId}')">Comment</button>`;eventArea.appendChild(eventDiv);loadEventComments(eventId);});},showError);
+  window.commentEvent=function(eventId){if(!currentUser)return alert("Login required");const input=document.getElementById("eventCommentInput"+eventId);if(!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("events").doc(eventId).collection("comments").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadEventComments(eventId){db.collection("events").doc(eventId).collection("comments").orderBy("created").onSnapshot(s=>{const container=document.getElementById("eventComments"+eventId);if(!container)return;container.innerHTML="";s.forEach(doc=>{const c=doc.data(),commentId=doc.id,commentDiv=document.createElement('div');commentDiv.className="replyBox";commentDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${c.userId||''}')">${c.name??'?'}</span> (${c.kindred??'?'})</strong><div>${parseContent(c.text)}</div><div class="timestamp">${formatTimestamp(c.created)}</div><div id="eventCommentReplies${commentId}"></div><input id="eventCommentReplyInput${commentId}" placeholder="Reply..."><button onclick="replyEventComment('${eventId}','${commentId}')">Reply</button>`;container.appendChild(commentDiv);addReactionUI(`events/${eventId}/comments`,commentId,commentDiv);loadEventCommentReplies(eventId,commentId);});},showError);}
+  window.replyEventComment=function(eventId,commentId){if(!currentUser)return alert("Login required");const input=document.getElementById("eventCommentReplyInput"+commentId);if(!input||!input.value.trim())return;db.collection("users").doc(currentUser.uid).get().then(u=>{const userData=u.data()||{};return db.collection("events").doc(eventId).collection("comments").doc(commentId).collection("replies").add({text:input.value,name:userData.name??null,kindred:userData.kindred??null,userId:currentUser.uid,created:Date.now()});}).then(()=>{input.value="";}).catch(showError);};
+  function loadEventCommentReplies(eventId,commentId){db.collection("events").doc(eventId).collection("comments").doc(commentId).collection("replies").orderBy("created").onSnapshot(s=>{const container=document.getElementById("eventCommentReplies"+commentId);if(!container)return;container.innerHTML="";s.forEach(doc=>{const r=doc.data(),replyDiv=document.createElement('div');replyDiv.className="replyBox";replyDiv.innerHTML=`<strong><span class="clickable-name" onclick="showProfile('${r.userId||''}')">${r.name??'?'}</span> (${r.kindred??'?'})</strong>: ${parseContent(r.text)}<div class="timestamp">${formatTimestamp(r.created)}</div>`;container.appendChild(replyDiv);addReactionUI(`events/${eventId}/comments/${commentId}/replies`,doc.id,replyDiv);});},showError);}
+
+  // Profiles
+  let currentProfileUserId=null;
+  window.showProfile=function(userId){if(!userId)return;db.collection('users').doc(userId).get().then(doc=>{if(!doc.exists)return;const user=doc.data();document.getElementById('profileInfo').innerHTML=`<p><strong>Name:</strong> ${user.name||'?'}</p><p><strong>Kindred:</strong> ${user.kindred||'?'}</p><p><strong>Email:</strong> ${user.email||'?'}</p><p><strong>Status:</strong> ${user.online?'🟢 Online':'🔴 Offline'}</p>`;currentProfileUserId=userId;document.getElementById('profileModal').style.display='flex';}).catch(showError);};
+  window.closeProfileModal=function(){document.getElementById('profileModal').style.display='none';currentProfileUserId=null;};
+  window.startPrivateChatFromProfile=function(){if(currentProfileUserId){startPrivateChat(currentProfileUserId);closeProfileModal();}};
+
+  // Private Chat
+  let activeChatRoomId=null,activeChatOtherUserId=null,unsubscribeRoomMessages=null;
+  function getChatRoomId(uid1,uid2){return[uid1,uid2].sort().join('_');}
+  window.startPrivateChat=async function(otherUserId){if(!currentUser)return alert('Login required');if(otherUserId===currentUser.uid)return alert('Cannot chat with yourself');const roomId=getChatRoomId(currentUser.uid,otherUserId);activeChatRoomId=roomId;activeChatOtherUserId=otherUserId;const roomRef=db.collection('privateChatRooms').doc(roomId);const roomDoc=await roomRef.get();if(!roomDoc.exists){await roomRef.set({participants:[currentUser.uid,otherUserId],createdAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:null,lastMessageTime:null});}
+    const unreadQuery=roomRef.collection('messages').where('from','==',otherUserId).where('read','==',false);unreadQuery.get().then(snapshot=>{const batch=db.batch();snapshot.forEach(doc=>batch.update(doc.ref,{read:true}));return batch.commit();}).catch(showError);
+    db.collection('users').doc(otherUserId).get().then(doc=>{const otherUser=doc.data();document.getElementById('chatWith').innerHTML=`Chat with ${otherUser.name||'User'}`;});
+    document.getElementById('chatModal').style.display='flex';document.getElementById('privateChatInput').focus();
+    const messagesRef=roomRef.collection('messages').orderBy('timestamp','asc');if(unsubscribeRoomMessages)unsubscribeRoomMessages();
+    unsubscribeRoomMessages=messagesRef.onSnapshot(snapshot=>{const container=document.getElementById('privateChatMessages');container.innerHTML='';snapshot.forEach(doc=>{const msg=doc.data(),div=document.createElement('div');div.className=`chat-message ${msg.from===currentUser.uid?'sent':'received'}`;div.innerHTML=`<div>${parseContent(msg.text)}</div><small>${msg.timestamp?.toDate?msg.timestamp.toDate().toLocaleTimeString():''}</small>`;container.appendChild(div);});container.scrollTop=container.scrollHeight;},showError);};
+  window.sendPrivateMessage=function(){const input=document.getElementById('privateChatInput');const text=input.value.trim();if(!text||!activeChatRoomId)return;const roomRef=db.collection('privateChatRooms').doc(activeChatRoomId);roomRef.collection('messages').add({from:currentUser.uid,text:text,timestamp:firebase.firestore.FieldValue.serverTimestamp(),read:false}).then(()=>{roomRef.update({lastMessage:text,lastMessageTime:firebase.firestore.FieldValue.serverTimestamp()}).catch(showError);input.value='';}).catch(showError);};
+  window.closeChatModal=function(){document.getElementById('chatModal').style.display='none';if(unsubscribeRoomMessages){unsubscribeRoomMessages();unsubscribeRoomMessages=null;}activeChatRoomId=null;activeChatOtherUserId=null;};
+
+  // Inbox
+  window.showInbox=function(){document.getElementById('inboxModal').style.display='flex';loadInbox();};
+  window.closeInboxModal=function(){document.getElementById('inboxModal').style.display='none';};
+  function loadInbox(){if(!currentUser)return;const inboxList=document.getElementById('inboxList');inboxList.innerHTML='Loading...';db.collection('privateChatRooms').where('participants','array-contains',currentUser.uid).get().then(async snapshot=>{if(snapshot.empty){inboxList.innerHTML='<p>No conversations yet.</p>';return;}const rooms=[];for(const doc of snapshot.docs){const room=doc.data();const otherUid=room.participants.find(uid=>uid!==currentUser.uid);const userDoc=await db.collection('users').doc(otherUid).get();const otherUser=userDoc.data()||{name:'Unknown'};const unreadSnapshot=await db.collection('privateChatRooms').doc(doc.id).collection('messages').where('from','==',otherUid).where('read','==',false).get();const unreadCount=unreadSnapshot.size;let preview=room.lastMessage||'No messages';if(preview.length>30)preview=preview.substring(0,30)+'…';let time=room.lastMessageTime?formatRelativeTime(room.lastMessageTime):'';rooms.push({id:doc.id,otherUid,otherName:otherUser.name||'User',preview,time,lastMessageTime:room.lastMessageTime?room.lastMessageTime.toDate():new Date(0),unreadCount});}rooms.sort((a,b)=>b.lastMessageTime-a.lastMessageTime);inboxList.innerHTML='';rooms.forEach(r=>{const item=document.createElement('div');item.className='inbox-item';item.onclick=()=>{closeInboxModal();startPrivateChat(r.otherUid);};const unreadBadge=r.unreadCount>0?`<span class="unread-badge">${r.unreadCount}</span>`:'';item.innerHTML=`<div class="inbox-item-info"><div class="inbox-item-name">${r.otherName} ${unreadBadge}</div><div class="inbox-item-preview">${r.preview}</div></div><div class="inbox-item-time">${r.time}</div>`;inboxList.appendChild(item);});}).catch(err=>{console.error('Inbox error:',err);inboxList.innerHTML='<p>Error loading inbox. Please try again.</p>';});}
+  window.onclick=function(event){if(event.target.classList.contains('modal')){event.target.style.display='none';if(event.target.id==='chatModal'&&unsubscribeRoomMessages){unsubscribeRoomMessages();unsubscribeRoomMessages=null;activeChatRoomId=null;}}};
+  if(typeof navigator.serviceWorker!=='undefined'){navigator.serviceWorker.register('sw.js');}
+</script>
 </body>
 </html>
