@@ -245,9 +245,9 @@
     <div class="login-card">
       <img src="https://via.placeholder.com/80" alt="Ntuconnect Logo">
       <h2>Welcome to Ntuconnect</h2>
-      <p>Please log in to continue.</p>
-      <input type="text" id="username" placeholder="Username" autocomplete="off">
-      <input type="password" id="password" placeholder="Password">
+      <p>Please log in with Admin credentials.</p>
+      <input type="text" id="username" placeholder="Username" autocomplete="off" value="Admin">
+      <input type="password" id="password" placeholder="Password" value="admin123">
       <button onclick="authenticateUser()">Log In</button>
       <p id="authMsg" class="error"></p>
     </div>
@@ -274,37 +274,25 @@
     const loopIcon = document.getElementById('loopIcon');
     const adminPanel = document.getElementById('adminPanel');
 
-    // ---------- Authentication ----------
-    async function authenticateUser() {
+    // ---------- Hardcoded Authentication ----------
+    function authenticateUser() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
       const msgEl = document.getElementById('authMsg');
       
-      if (!username || !password) {
-        msgEl.textContent = 'Please enter both fields.';
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_BASE}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (res.ok && data.token) {
-          authToken = data.token;
-          currentUser = data.user;
-          localStorage.setItem('token', authToken);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          loginOverlay.classList.add('hidden');
-          checkAdmin();
-          showTab('feed');  // Load feed after login
-        } else {
-          msgEl.textContent = data.message || 'Login failed.';
-        }
-      } catch (error) {
-        msgEl.textContent = 'Network error. Please try again.';
+      // Hardcoded check for Admin / admin123
+      if (username === 'Admin' && password === 'admin123') {
+        // Create a user object
+        currentUser = { username: 'Admin', role: 'admin' };
+        authToken = 'dummy-token-' + Date.now();  // simple token
+        localStorage.setItem('token', authToken);
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        
+        loginOverlay.classList.add('hidden');
+        checkAdmin();
+        showTab('feed');  // Load feed after login
+      } else {
+        msgEl.textContent = 'Invalid credentials. Use Admin / admin123';
       }
     }
 
@@ -318,29 +306,16 @@
       }
     }
 
-    // Auto-login if token exists
-    (async function initAuth() {
-      if (authToken) {
-        try {
-          // Verify token with backend
-          const res = await fetch(`${API_BASE}/me`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-          });
-          if (res.ok) {
-            const user = await res.json();
-            currentUser = user;
-            localStorage.setItem('user', JSON.stringify(user));
-            loginOverlay.classList.add('hidden');
-            checkAdmin();
-            showTab('feed');
-          } else {
-            // Token invalid
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-          }
-        } catch (error) {
-          console.error('Auth check failed', error);
-        }
+    // Auto-login if token exists (using stored user)
+    (function initAuth() {
+      const storedUser = localStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
+      if (storedUser && storedToken) {
+        currentUser = JSON.parse(storedUser);
+        authToken = storedToken;
+        loginOverlay.classList.add('hidden');
+        checkAdmin();
+        showTab('feed');
       }
     })();
 
@@ -369,7 +344,7 @@
         const posts = await res.json();
         renderFeed(posts);
       } catch (error) {
-        mainContent.innerHTML = '<div class="card">Error loading feed.</div>';
+        mainContent.innerHTML = '<div class="card">Error loading feed. Make sure your backend is running.</div>';
       }
     }
 
@@ -448,7 +423,7 @@
         playlist = await res.json();
         renderMusicList();
       } catch (error) {
-        mainContent.innerHTML = '<div class="card">Could not load music.</div>';
+        mainContent.innerHTML = '<div class="card">Could not load music. Check backend.</div>';
       }
     }
 
@@ -562,16 +537,6 @@
         alert('Upload failed.');
       }
     }
-
-    // ---------- Initial Load ----------
-    // If already logged in, show feed; otherwise overlay stays visible
-    window.onload = () => {
-      if (authToken) {
-        loginOverlay.classList.add('hidden');
-        checkAdmin();
-        showTab('feed');
-      }
-    };
   </script>
 </body>
 </html>
